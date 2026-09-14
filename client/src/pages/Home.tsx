@@ -75,15 +75,6 @@ const team = [
     portrait: "portrait-b",
   },
   {
-    id: "D-03",
-    name: "Матвей",
-    role: "Проджект-менеджмент / медмаркетинг",
-    bio: "10 лет ведёт проекты в медицинском маркетинге. Выстраивает коммуникацию между заказчиком и командой, чтобы задачи превращались в понятный результат.",
-    skills: ["project", "medmarketing", "communication"],
-    accent: "violet",
-    portrait: "portrait-c",
-  },
-  {
     id: "D-04",
     name: "Арсений",
     role: "Стратегия / контент / digital",
@@ -91,6 +82,15 @@ const team = [
     skills: ["content", "strategy", "digital", "business"],
     accent: "peach",
     portrait: "portrait-d",
+  },
+  {
+    id: "D-03",
+    name: "Матвей",
+    role: "Проджект-менеджмент / медмаркетинг",
+    bio: "10 лет ведёт проекты в медицинском маркетинге. Выстраивает коммуникацию между заказчиком и командой, чтобы задачи превращались в понятный результат.",
+    skills: ["project", "medmarketing", "communication"],
+    accent: "violet",
+    portrait: "portrait-c",
   },
 ];
 
