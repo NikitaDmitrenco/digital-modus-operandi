@@ -58,7 +58,7 @@ const services = [
 const team = [
   {
     id: "D-01",
-    name: "БОРИС",
+    name: "Борис",
     role: "AI / автоматизация / системы",
     bio: "Проектирует сложные digital-системы — от AI-пайплайнов и автоматизации до backend-архитектуры и интеграций.",
     skills: ["ai", "automation", "backend", "systems"],
@@ -67,7 +67,7 @@ const team = [
   },
   {
     id: "D-02",
-    name: "НИКИТА",
+    name: "Никита",
     role: "Full-stack / product / e-commerce",
     bio: "Собирает цифровые продукты целиком — от интерфейса и бизнес-логики до e-commerce, SaaS и интеграций.",
     skills: ["fullstack", "product", "ecommerce", "saas"],
@@ -76,7 +76,7 @@ const team = [
   },
   {
     id: "D-03",
-    name: "МАТВЕЙ",
+    name: "Матвей",
     role: "Проджект-менеджмент / медмаркетинг",
     bio: "10 лет ведёт проекты в медицинском маркетинге. Выстраивает коммуникацию между заказчиком и командой, чтобы задачи превращались в понятный результат.",
     skills: ["project", "medmarketing", "communication"],
@@ -85,7 +85,7 @@ const team = [
   },
   {
     id: "D-04",
-    name: "АРСЕНИЙ",
+    name: "Арсений",
     role: "Стратегия / контент / digital",
     bio: "3 года в digital-маркетинге. Создаёт системный контент для экспертов, предпринимателей и бизнесов — от стратегии до работающей контент-системы.",
     skills: ["content", "strategy", "digital", "business"],
