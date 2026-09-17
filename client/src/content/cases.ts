@@ -1,0 +1,223 @@
+import type { CaseStudy } from "./types";
+
+export const casesIntro = {
+  titleStart: "Говорят не обещания.",
+  titleAccent: "Говорят работающие системы.",
+  text: "Показываем, какую бизнес-задачу решали, что построили и что изменилось после запуска.",
+  note: "3 сильных кейса вместо восьми разношёрстных",
+};
+
+/**
+ * Case studies.
+ *
+ * Rules that this list has to keep obeying:
+ * - `proof` is a fact someone can verify — a usage status, funding, revenue or
+ *   an award. No invented metrics.
+ * - NDA material stays out of `functions` and `solution`; `ndaNote` says so openly.
+ * - `status: "draft"` means the client has not yet supplied confirmed facts:
+ *   such a case is never featured on the home page and is not indexable.
+ */
+export const cases: CaseStudy[] = [
+  {
+    slug: "k1-beton",
+    client: "K1 Beton",
+    industry: "Производство / бетон",
+    title: "CRM и операционная система для производственной компании",
+    subtitle:
+      "Ключевые рабочие процессы компании собраны в одном интерфейсе — от клиентской базы до логистики.",
+    problem:
+      "Работа с клиентами, заявками и логистикой была распределена между людьми и таблицами: операторы и руководители не видели общей картины, а контроль отнимал рабочее время.",
+    solution:
+      "Разработали внутреннюю CRM-систему, которая объединила ключевые рабочие процессы компании в одном интерфейсе и сделала их прозрачными для операторов и руководителей.",
+    functions: [
+      "Клиентская база и история взаимодействий",
+      "Работа с заявками и заказами",
+      "Контроль логистических процессов и загрузки",
+      "Операционная аналитика по ключевым процессам",
+    ],
+    result:
+      "Система используется в реальной работе компании и сократила объём ручного контроля за операционными процессами.",
+    proof: "Используется в ежедневной работе компании",
+    tags: ["CRM", "B2B", "OPERATIONS", "LOGISTICS", "NDA"],
+    cover: "case-lime",
+    nda: true,
+    ndaNote: "Часть архитектуры и бизнес-процессов не раскрывается из-за NDA.",
+    team: [],
+    status: "published",
+    featured: true,
+  },
+  {
+    slug: "tehnosklad",
+    client: "Tehnosklad",
+    industry: "Бытовая техника / Комрат",
+    title: "E-commerce-платформа, которой заказчик управляет без разработчика",
+    subtitle:
+      "Публичный каталог, гибкие характеристики и админ-панель, рассчитанная на сотрудника компании.",
+    problem:
+      "Каталог бытовой техники состоит из разных типов продукции с несовпадающими наборами характеристик. Жёстко зашитая структура означала бы обращение к разработчику на каждое изменение.",
+    solution:
+      "С нуля создали e-commerce-платформу: публичный каталог, категории, фильтрацию, карточки товаров, административную панель и обработку заявок.",
+    functions: [
+      "Гибкая структура категорий и подкатегорий",
+      "Система характеристик под разные типы техники",
+      "Управление товарами и изображениями через админ-панель",
+      "Заявки и backend-логика магазина",
+    ],
+    result:
+      "Характеристики товаров не зашиты жёстко в код: сотрудник компании сам создаёт новые параметры и расширяет каталог.",
+    proof: "Каталог расширяет сотрудник компании, без разработчика",
+    tags: ["E-COMMERCE", "CATALOG", "ADMIN PANEL", "B2B"],
+    cover: "case-ice",
+    nda: false,
+    team: [],
+    status: "published",
+    featured: true,
+  },
+  {
+    slug: "litlab",
+    client: "LitLab 4.5",
+    industry: "EdTech",
+    title: "EdTech-платформа, получившая около €30 000 финансирования",
+    subtitle:
+      "Образовательная цифровая платформа, созданная с нуля и вышедшая за рамки прототипа.",
+    problem:
+      "Образовательному продукту нужна была не демонстрация идеи, а работающая платформа с нетривиальной логикой, способная пройти внешнюю оценку.",
+    solution:
+      "Спроектировали продукт и пользовательские сценарии, полностью реализовали платформу технически и подготовили её к масштабированию в образовательной среде.",
+    functions: [
+      "Проектирование продукта и пользовательских сценариев",
+      "Полная техническая реализация платформы",
+      "Подготовка продукта к масштабированию в образовательной среде",
+    ],
+    result:
+      "Проект вышел за рамки прототипа и получил около €30 000 европейского финансирования.",
+    proof: "≈ €30 000 европейского финансирования",
+    tags: ["EDTECH", "PRODUCT", "FUNDING"],
+    cover: "case-violet",
+    nda: false,
+    team: [],
+    status: "published",
+    featured: true,
+  },
+  {
+    slug: "klipi-ai",
+    client: "Klipi AI",
+    industry: "Собственный продукт / AI",
+    title: "Коммерческий AI-продукт, дошедший до платящих пользователей",
+    subtitle:
+      "Full-stack AI-система: интерфейс, backend, хранение данных и интеграции с генеративными сервисами.",
+    problem:
+      "AI-демо легко собрать и невозможно эксплуатировать. Нужно было довести генеративный сценарий до продукта, который выдерживает реальных пользователей.",
+    solution:
+      "Собрали собственный продукт как full-stack AI-систему и вывели его в production-эксплуатацию.",
+    functions: [
+      "AI-интеграции внутри пользовательского продукта",
+      "Обработка пользовательского контента",
+      "Production-развёртывание и эксплуатация",
+    ],
+    result:
+      "Проект дошёл до реальных пользователей и начал приносить выручку — AI работает внутри рабочего продукта, а не в демо.",
+    proof: "Платящие пользователи, продукт в эксплуатации",
+    tags: ["AI", "PRODUCT", "COMMERCIAL"],
+    cover: "case-peach",
+    nda: false,
+    team: [],
+    status: "published",
+    featured: true,
+  },
+
+  // --- Расширенное портфолио -------------------------------------------------
+  // Эти проекты реальны, но подтверждённых фактов по шаблону из ТЗ (§6.3, 11
+  // полей) пока нет. Они не выводятся на главной и не индексируются, пока
+  // клиент не подтвердит задачу, реализованные функции и доказательство.
+  {
+    slug: "agrohelp",
+    client: "AGROHELP / AGRODEV",
+    industry: "ClimateTech / AgriTech",
+    title: "ClimateTech-проект в международном контексте",
+    subtitle: "Карточка в подготовке: ждём подтверждённые факты от клиента.",
+    problem: "",
+    solution: "",
+    functions: [],
+    result: "",
+    proof: "",
+    tags: ["CLIMATETECH", "AGRITECH", "INTERNATIONAL"],
+    cover: "case-lime",
+    nda: false,
+    team: [],
+    status: "draft",
+    featured: false,
+  },
+  {
+    slug: "muovis-robotech",
+    client: "MUOVIS / ROBOTECH",
+    industry: "R&D / инженерные проекты",
+    title: "Инженерный R&D-проект",
+    subtitle: "Карточка в подготовке: ждём подтверждённые факты от клиента.",
+    problem: "",
+    solution: "",
+    functions: [],
+    result: "",
+    proof: "",
+    tags: ["R&D", "ENGINEERING", "HARDWARE"],
+    cover: "case-ice",
+    nda: false,
+    team: [],
+    status: "draft",
+    featured: false,
+  },
+  {
+    slug: "hydromap",
+    client: "HYDROMAP",
+    industry: "Стартап / продукт",
+    title: "Стартап-проект, отмеченный наградой Dreamups",
+    subtitle: "Карточка в подготовке: ждём подтверждённые факты от клиента.",
+    problem: "",
+    solution: "",
+    functions: [],
+    result: "",
+    proof: "Награда Dreamups",
+    tags: ["STARTUP", "PRODUCT", "AWARD"],
+    cover: "case-violet",
+    nda: false,
+    team: [],
+    status: "draft",
+    featured: false,
+  },
+  {
+    slug: "robotech-md",
+    client: "ROBOTECH.MD",
+    industry: "Сайт инженерной команды",
+    title: "Production-сайт реальной инженерной команды",
+    subtitle: "Карточка в подготовке: ждём подтверждённые факты от клиента.",
+    problem: "",
+    solution: "",
+    functions: [],
+    result: "",
+    proof: "",
+    tags: ["WEB", "PRODUCTION"],
+    cover: "case-peach",
+    nda: false,
+    team: [],
+    status: "draft",
+    featured: false,
+  },
+];
+
+/** Cases shown on the home page — never more than four. */
+export const featuredCases = cases
+  .filter(item => item.featured && item.status === "published")
+  .slice(0, 4);
+
+export const publishedCases = cases.filter(item => item.status === "published");
+export const draftCases = cases.filter(item => item.status === "draft");
+
+export function getCaseBySlug(slug: string): CaseStudy | undefined {
+  return cases.find(item => item.slug === slug);
+}
+
+/** Position in the list, used for the CASE_00x labels. */
+export function caseIndex(slug: string): string {
+  const position = publishedCases.findIndex(item => item.slug === slug);
+  return String(position + 1).padStart(3, "0");
+}

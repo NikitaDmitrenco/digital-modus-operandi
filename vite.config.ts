@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+import { publishedCases } from "./client/src/content/cases";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -203,7 +204,56 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy(), seoAssetsPlugin()];
+
+// =============================================================================
+// SEO assets - emitted at build time from the case content layer, so the
+// sitemap can never drift away from the cases that are actually published.
+// =============================================================================
+
+const SITE_URL = (process.env.VITE_SITE_URL || "https://digital-modus-operandi.vercel.app").replace(
+  /\/$/,
+  "",
+);
+
+function seoAssetsPlugin(): Plugin {
+  const urls = ["/", "/cases", ...publishedCases.map((item) => `/cases/${item.slug}`)];
+
+  return {
+    name: "dmo-seo-assets",
+    apply: "build",
+    generateBundle() {
+      const today = new Date().toISOString().slice(0, 10);
+      const sitemap = [
+        '<?xml version="1.0" encoding="UTF-8"?>',
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+        ...urls.map((url) =>
+          [
+            "  <url>",
+            `    <loc>${SITE_URL}${url}</loc>`,
+            `    <lastmod>${today}</lastmod>`,
+            `    <changefreq>${url === "/" ? "weekly" : "monthly"}</changefreq>`,
+            `    <priority>${url === "/" ? "1.0" : "0.7"}</priority>`,
+            "  </url>",
+          ].join("\n"),
+        ),
+        "</urlset>",
+        "",
+      ].join("\n");
+
+      const robots = [
+        "User-agent: *",
+        "Allow: /",
+        "",
+        `Sitemap: ${SITE_URL}/sitemap.xml`,
+        "",
+      ].join("\n");
+
+      this.emitFile({ type: "asset", fileName: "sitemap.xml", source: sitemap });
+      this.emitFile({ type: "asset", fileName: "robots.txt", source: robots });
+    },
+  };
+}
 
 export default defineConfig({
   plugins,
