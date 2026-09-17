@@ -1,12 +1,16 @@
 /**
  * Thin analytics layer.
  *
- * The site ships an Umami tag in `client/index.html` (configured through
- * VITE_ANALYTICS_ENDPOINT / VITE_ANALYTICS_WEBSITE_ID). We deliberately do not
- * add a second analytics system: this module forwards the same event name and
- * the same parameter set to whichever provider happens to be on the page —
- * Umami, GA4 (`gtag`) or Yandex.Metrika (`ym`). If none is present, tracking is
- * a no-op and never throws.
+ * No analytics provider is installed on the site right now — that was a
+ * deliberate decision, see DMO_REWORK_PROGRESS.md §4.0. This module therefore
+ * needs no configuration and no environment variables: it forwards each event
+ * to whichever provider happens to be on the page (Umami, GA4 via `gtag`,
+ * Yandex.Metrika via `ym`) and stays a silent no-op while none is.
+ *
+ * To switch analytics on later, add the provider's own snippet to the page —
+ * nothing in this file has to change, and the events below start reporting on
+ * their own. Attribution does NOT depend on any of this: UTM tags travel with
+ * the lead itself (see lib/leads.ts) and reach Telegram regardless.
  */
 
 export type AnalyticsEvent =
@@ -137,32 +141,4 @@ export function initScrollDepthTracking(
     observer.disconnect();
     window.removeEventListener("scroll", onScroll);
   };
-}
-
-/**
- * Loads the Umami tag that used to sit in `index.html` with unresolved
- * `%VITE_…%` placeholders — which made every page load fire a broken request.
- * Now the tag is injected only when both variables are actually configured.
- *
- * VITE_ANALYTICS_ENDPOINT — e.g. https://analytics.example.com
- * VITE_ANALYTICS_WEBSITE_ID — the Umami website id
- */
-export function initAnalytics() {
-  if (typeof document === "undefined") return;
-
-  const endpoint = (
-    import.meta.env.VITE_ANALYTICS_ENDPOINT as string | undefined
-  )?.replace(/\/$/, "");
-  const websiteId = import.meta.env.VITE_ANALYTICS_WEBSITE_ID as
-    | string
-    | undefined;
-  if (!endpoint || !websiteId) return;
-  if (document.getElementById("dmo-umami")) return;
-
-  const script = document.createElement("script");
-  script.id = "dmo-umami";
-  script.defer = true;
-  script.src = `${endpoint}/umami`;
-  script.dataset.websiteId = websiteId;
-  document.head.appendChild(script);
 }
