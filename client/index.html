@@ -9,6 +9,50 @@
       name="description"
       content="Разрабатываем B2B-сайты и каталоги, личные кабинеты, CRM и внутренние системы. Интегрируем их с CRM, ERP и складом, чтобы заявки, цены и статусы перестали проходить через менеджера вручную." />
     <link rel="canonical" href="https://digital-modus-operandi.vercel.app/" />
+
+    <!--
+      Шрифты. Раньше подключались через @import в client/src/index.css: браузер узнавал о них
+      только после скачивания и разбора бандла стилей, цепочка была последовательной —
+      HTML -> app.css -> fonts.googleapis.com/css2 -> fonts.gstatic.com/*.woff2.
+      Здесь ссылки видит preload-сканер сразу в разметке, соединения прогреты через preconnect,
+      а критичные файлы шрифтов запрашиваются параллельно с CSS Google Fonts, а не после него.
+      Начертания ровно те, что реально встречаются в стилях: Space Grotesk 400-600,
+      Manrope 400-700, DM Mono 400 и 500. Диапазоны (wght@400..600) отдают один вариативный
+      woff2 вместо дублей @font-face на каждый вес — файл тот же, CSS втрое короче.
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="preload"
+      as="style"
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400..700&family=Space+Grotesk:wght@400..600&display=swap" />
+    <!--
+      Два начертания, от подмены которых вёрстка скачет сильнее всего, забираем не дожидаясь
+      разбора CSS Google Fonts: Space Grotesk (латиница) — .display / .hero-title / .kicker
+      и монограмма .brand-symbol; Manrope (кириллица) — весь основной текст.
+      URL версионированные (spacegrotesk/v22, manrope/v20): при обновлении семейства в Google Fonts
+      их надо сверить заново, иначе preload скачает файл, который CSS уже не использует.
+    -->
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="https://fonts.gstatic.com/s/spacegrotesk/v22/V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2" />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      crossorigin
+      href="https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggOxSuXd.woff2" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400..700&family=Space+Grotesk:wght@400..600&display=swap" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
+    <link rel="manifest" href="/site.webmanifest" />
+
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Digital Modus Operandi" />
     <meta property="og:locale" content="ru_RU" />
@@ -20,8 +64,6 @@
     <meta property="og:image" content="https://digital-modus-operandi.vercel.app/og-cover.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:image" content="https://digital-modus-operandi.vercel.app/og-cover.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   </head>
   <body>
     <div id="root"></div>
