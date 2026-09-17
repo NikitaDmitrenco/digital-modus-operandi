@@ -141,15 +141,16 @@ export function buildMailtoFallback(
   payload: LeadPayload,
   email: string
 ): string {
-  const body = [
+  // Contact block, a blank line, then the task text. The blank line is built
+  // separately: filtering falsy entries would have swallowed it along with the
+  // empty string left by a missing `link`.
+  const header = [
     `Имя / компания: ${payload.name}`,
     `Контакт: ${payload.contact}`,
     payload.link ? `Сайт: ${payload.link}` : "",
-    "",
-    payload.task,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  ].filter(Boolean);
+
+  const body = `${header.join("\n")}\n\n${payload.task}`;
 
   return `mailto:${email}?subject=${encodeURIComponent("Заявка с сайта DMO")}&body=${encodeURIComponent(body)}`;
 }
