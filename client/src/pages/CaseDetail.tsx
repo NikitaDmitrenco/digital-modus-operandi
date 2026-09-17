@@ -1,4 +1,4 @@
-import { useEffect, type CSSProperties } from "react";
+import { useEffect } from "react";
 import { ArrowLeft, ArrowUpRight, Check, ShieldCheck } from "lucide-react";
 import { Link, useParams } from "wouter";
 import SiteShell from "@/components/site/SiteShell";
@@ -15,8 +15,6 @@ import type { CaseStudy } from "@/content/types";
  * span used to produce — are repeated here to keep the rendering pixel-identical
  * without touching index.css.
  */
-const blockTitle: CSSProperties = { color: "#6f7a6b", display: "inline" };
-
 function CaseView({ item }: { item: CaseStudy }) {
   useSeo({
     title: `${item.client}: ${item.title} — Digital Modus Operandi`,
@@ -80,7 +78,7 @@ function CaseView({ item }: { item: CaseStudy }) {
 
         <div className="case-page-body">
           <section className="case-block reveal" aria-labelledby="case-problem">
-            <h2 className="mono" id="case-problem" style={blockTitle}>
+            <h2 className="mono" id="case-problem">
               01 / ЗАДАЧА
             </h2>
             <p>{item.problem}</p>
@@ -90,7 +88,7 @@ function CaseView({ item }: { item: CaseStudy }) {
             className="case-block reveal"
             aria-labelledby="case-solution"
           >
-            <h2 className="mono" id="case-solution" style={blockTitle}>
+            <h2 className="mono" id="case-solution">
               02 / РЕШЕНИЕ
             </h2>
             <p>{item.solution}</p>
@@ -100,7 +98,7 @@ function CaseView({ item }: { item: CaseStudy }) {
             className="case-block reveal"
             aria-labelledby="case-functions-title"
           >
-            <h2 className="mono" id="case-functions-title" style={blockTitle}>
+            <h2 className="mono" id="case-functions-title">
               03 / ЧТО СДЕЛАЛИ
             </h2>
             <ul className="case-functions">
@@ -113,7 +111,7 @@ function CaseView({ item }: { item: CaseStudy }) {
           </section>
 
           <section className="case-block reveal" aria-labelledby="case-result">
-            <h2 className="mono" id="case-result" style={blockTitle}>
+            <h2 className="mono" id="case-result">
               04 / РЕЗУЛЬТАТ
             </h2>
             <p>{item.result}</p>
