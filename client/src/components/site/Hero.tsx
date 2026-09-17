@@ -5,7 +5,7 @@ import { brand, hero, primaryCta, secondaryCta } from "@/content/site";
 
 export default function Hero() {
   return (
-    <section className="hero section-pad">
+    <section className="hero section-pad" aria-labelledby="hero-title">
       <div className="hero-grid" aria-hidden="true" />
       <div className="hero-orbit orbit-one" aria-hidden="true" />
       <div className="hero-orbit orbit-two" aria-hidden="true" />
@@ -14,7 +14,7 @@ export default function Hero() {
           <span className="section-index">// 01</span>
           <span>{hero.eyebrow}</span>
         </div>
-        <h1 className="display hero-title reveal delay-1">
+        <h1 className="display hero-title reveal delay-1" id="hero-title">
           {hero.titleStart}
           <br />
           <em>{hero.titleAccent}</em>
@@ -37,14 +37,14 @@ export default function Hero() {
                 })
               }
             >
-              {primaryCta} <ArrowUpRight size={18} />
+              {primaryCta} <ArrowUpRight size={18} aria-hidden="true" />
             </a>
             <a
               className="button button-ghost"
               href="#cases"
               onClick={() => track("hero_cases_click", { section: "hero" })}
             >
-              {secondaryCta} <ArrowDownRight size={18} />
+              {secondaryCta} <ArrowDownRight size={18} aria-hidden="true" />
             </a>
           </div>
         </div>

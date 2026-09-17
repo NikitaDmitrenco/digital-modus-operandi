@@ -23,11 +23,15 @@ function Portrait({ person }: { person: TeamMember }) {
         />
       ) : (
         <>
-          <span className="portrait-placeholder mono">PHOTO / PLACEHOLDER</span>
+          <span className="portrait-placeholder mono" aria-hidden="true">
+            PHOTO / PLACEHOLDER
+          </span>
           <span className="portrait-scan" aria-hidden="true">
             <ScanLine size={16} />
           </span>
-          <span className="portrait-id mono">{person.id}</span>
+          <span className="portrait-id mono" aria-hidden="true">
+            {person.id}
+          </span>
         </>
       )}
     </div>
@@ -36,14 +40,18 @@ function Portrait({ person }: { person: TeamMember }) {
 
 export default function Team() {
   return (
-    <section id="team" className="team section-pad">
+    <section
+      id="team"
+      className="team section-pad"
+      aria-labelledby="team-title"
+    >
       <div className="section-heading reveal">
         <span className="section-index">// 07</span>
         <span className="mono">КОМАНДА / TEAM DOSSIERS</span>
         <span className="heading-note">{teamIntro.note}</span>
       </div>
       <div className="team-header reveal">
-        <h2 className="display">
+        <h2 className="display" id="team-title">
           {teamIntro.titleStart}
           <br />
           <em>{teamIntro.titleAccent}</em>

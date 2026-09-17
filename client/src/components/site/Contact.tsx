@@ -1,4 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
 import {
   ArrowUpRight,
   Check,
@@ -32,6 +38,29 @@ const EMPTY: Fields = {
   contact: "",
   task: "",
   link: "",
+  company_website: "",
+};
+
+/** Off-screen but still announced — the stylesheet needs no new class. */
+const srOnly: CSSProperties = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  margin: -1,
+  padding: 0,
+  overflow: "hidden",
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  whiteSpace: "nowrap",
+  border: 0,
+};
+
+/** Spoken names of the fields, used by the error summary. */
+const FIELD_NAMES: Record<keyof Fields, string> = {
+  name: "как вас зовут",
+  contact: "куда ответить",
+  task: "что происходит",
+  link: "сайт или ссылка",
   company_website: "",
 };
 
@@ -76,6 +105,27 @@ export default function Contact() {
   const [startedTracked, setStartedTracked] = useState(false);
   const mountedAt = useRef(Date.now());
   const [fallbackHref, setFallbackHref] = useState("");
+  /** Announced by the live region; remounted on every attempt so it re-fires. */
+  const [alert, setAlert] = useState("");
+  const [attempt, setAttempt] = useState(0);
+  /** Set after a failed submit — focus moves once the errors are in the DOM. */
+  const [focusField, setFocusField] = useState<keyof Fields | null>(null);
+  const doneRef = useRef<HTMLDivElement>(null);
+
+  /**
+   * Focusing inside the submit handler would put the caret on the input before
+   * React had rendered aria-describedby, so the error text stayed unspoken.
+   * This effect runs after the commit, when the description already exists.
+   */
+  useEffect(() => {
+    if (!focusField) return;
+    document.getElementById(`field-${focusField}`)?.focus();
+    setFocusField(null);
+  }, [focusField]);
+
+  useEffect(() => {
+    if (state === "sent") doneRef.current?.focus();
+  }, [state]);
 
   useEffect(() => {
     mountedAt.current = Date.now();
@@ -118,17 +168,26 @@ export default function Contact() {
     event.preventDefault();
     const nextErrors = validate(values);
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) {
-      const firstField = Object.keys(nextErrors)[0];
-      document.getElementById(`field-${firstField}`)?.focus();
+    setAttempt(value => value + 1);
+    const invalid = Object.keys(nextErrors) as (keyof Fields)[];
+    if (invalid.length > 0) {
+      setAlert(
+        `Форма не отправлена. Проверьте ${invalid.length === 1 ? "поле" : "поля"}: ${invalid
+          .map(field => FIELD_NAMES[field])
+          .join(", ")}.`
+      );
+      setFocusField(invalid[0]);
       return;
     }
+
+    setAlert("");
 
     setState("sending");
     const result = await submitLead(payload);
 
     if (result.ok) {
       setState("sent");
+      setAlert("");
       track("contact_submit", {
         section: "contact",
         source: attributionSource(payload.attribution),
@@ -142,17 +201,22 @@ export default function Contact() {
       return;
     }
 
+    const message =
+      result.reason === "rate_limited"
+        ? "Слишком много отправок подряд. Подождите минуту или напишите нам напрямую."
+        : "Не получилось отправить. Проверьте поля или напишите нам напрямую.";
     setState("idle");
-    setErrors({
-      task:
-        result.reason === "rate_limited"
-          ? "Слишком много отправок подряд. Подождите минуту или напишите нам напрямую."
-          : "Не получилось отправить. Проверьте поля или напишите нам напрямую.",
-    });
+    setErrors({ task: message });
+    setAlert(message);
+    setFocusField("task");
   };
 
   return (
-    <section id="contact" className="contact section-pad">
+    <section
+      id="contact"
+      className="contact section-pad"
+      aria-labelledby="contact-title"
+    >
       <div className="contact-signal" aria-hidden="true">
         <div className="signal-ring ring-a" />
         <div className="signal-ring ring-b" />
@@ -167,7 +231,7 @@ export default function Contact() {
       </div>
       <div className="contact-layout">
         <div className="contact-title reveal">
-          <h2 className="display">
+          <h2 className="display" id="contact-title">
             {finalCta.titleStart}
             <br />
             <em>{finalCta.titleAccent}</em>
@@ -191,7 +255,13 @@ export default function Contact() {
         </div>
 
         {state === "sent" ? (
-          <div className="contact-form reveal delay-1 form-done" role="status">
+          <div
+            className="contact-form reveal delay-1 form-done"
+            role="status"
+            ref={doneRef}
+            tabIndex={-1}
+            style={{ outline: "none" }}
+          >
             <span className="mono">ЗАЯВКА ПРИНЯТА</span>
             <h3>Спасибо — мы получили ваш контекст.</h3>
             <p>
@@ -210,6 +280,11 @@ export default function Contact() {
             onSubmit={handleSubmit}
             noValidate
           >
+            {/* Announces the outcome of a failed submit, wherever focus is. */}
+            <p key={attempt} role="alert" style={srOnly}>
+              {alert}
+            </p>
+
             <label htmlFor="field-name">
               <span className="mono">01 / КАК ВАС ЗОВУТ</span>
               <input
