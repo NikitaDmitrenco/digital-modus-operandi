@@ -6,6 +6,7 @@ import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 import { publishedCases } from "./client/src/content/cases";
+import { seoPrerenderPlugin } from "./scripts/prerender-seo";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -204,8 +205,6 @@ function vitePluginStorageProxy(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy(), seoAssetsPlugin()];
-
 // =============================================================================
 // SEO assets - emitted at build time from the case content layer, so the
 // sitemap can never drift away from the cases that are actually published.
@@ -255,8 +254,51 @@ function seoAssetsPlugin(): Plugin {
   };
 }
 
-export default defineConfig({
-  plugins,
+/**
+ * `client/public/__manus__/debug-collector.js` is only ever requested by the
+ * dev-only debug collector plugin. Vite copies the whole publicDir verbatim and
+ * offers no exclude option, so the directory is dropped from the build output
+ * again. The source file stays in place for `pnpm dev`.
+ */
+function dropDevPublicAssetsPlugin(): Plugin {
+  const DEV_ONLY_PUBLIC_PATHS = ["__manus__"];
+  let outDir = "";
+
+  return {
+    name: "dmo-drop-dev-public-assets",
+    apply: "build",
+    enforce: "post",
+    configResolved(config) {
+      outDir = path.resolve(config.root, config.build.outDir);
+    },
+    closeBundle() {
+      for (const entry of DEV_ONLY_PUBLIC_PATHS) {
+        fs.rmSync(path.join(outDir, entry), { recursive: true, force: true });
+      }
+    },
+  };
+}
+
+export default defineConfig(({ command }) => ({
+  // Builder tooling (jsx-loc, the Manus runtime, the debug collector and the
+  // /manus-storage proxy) serves the developer only. It must never reach a
+  // visitor: the runtime alone inlined ~367 kB into every production
+  // index.html, so those plugins are instantiated for `serve` only.
+  plugins: [
+    react(),
+    tailwindcss(),
+    ...(command === "serve"
+      ? [
+          jsxLocPlugin(),
+          vitePluginManusRuntime(),
+          vitePluginManusDebugCollector(),
+          vitePluginStorageProxy(),
+        ]
+      : []),
+    seoAssetsPlugin(),
+    dropDevPublicAssetsPlugin(),
+    seoPrerenderPlugin(SITE_URL),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -288,4 +330,4 @@ export default defineConfig({
       deny: ["**/.*"],
     },
   },
-});
+}));
