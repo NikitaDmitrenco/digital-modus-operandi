@@ -6,14 +6,18 @@ export default function Faq() {
   const [activeFaq, setActiveFaq] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="faq section-pad section-dark">
+    <section
+      id="faq"
+      className="faq section-pad section-dark"
+      aria-labelledby="faq-title"
+    >
       <div className="section-heading reveal">
         <span className="section-index">// 08</span>
         <span className="mono">ЧАСТЫЕ ВОПРОСЫ / FAQ</span>
       </div>
       <div className="faq-layout">
         <div className="faq-title reveal">
-          <h2 className="display">
+          <h2 className="display" id="faq-title">
             Спросить
             <br />
             <em>напрямую.</em>

@@ -5,14 +5,18 @@ import { caseIndex, casesIntro, featuredCases } from "@/content/cases";
 
 export default function CasesSection() {
   return (
-    <section id="cases" className="cases section-pad section-dark">
+    <section
+      id="cases"
+      className="cases section-pad section-dark"
+      aria-labelledby="cases-title"
+    >
       <div className="section-heading reveal">
         <span className="section-index">// 04</span>
         <span className="mono">РАБОТАЮЩИЕ СИСТЕМЫ / CASES</span>
         <span className="heading-note">{casesIntro.note}</span>
       </div>
       <div className="cases-header reveal">
-        <h2 className="display">
+        <h2 className="display" id="cases-title">
           {casesIntro.titleStart}
           <br />
           <em>{casesIntro.titleAccent}</em>

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, type CSSProperties } from "react";
 import { ArrowUpRight, ShieldCheck } from "lucide-react";
 import { Link } from "wouter";
 import SiteShell from "@/components/site/SiteShell";
@@ -7,6 +7,20 @@ import { captureAttribution } from "@/lib/leads";
 import { useSeo } from "@/lib/seo";
 import { caseIndex, draftCases, publishedCases } from "@/content/cases";
 import { primaryCta } from "@/content/site";
+
+/** Off-screen but still part of the heading outline. */
+const srOnly: CSSProperties = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  margin: -1,
+  padding: 0,
+  overflow: "hidden",
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  whiteSpace: "nowrap",
+  border: 0,
+};
 
 export default function Cases() {
   useSeo({
@@ -23,7 +37,10 @@ export default function Cases() {
 
   return (
     <SiteShell>
-      <section className="cases page-top section-pad section-dark">
+      <section
+        className="cases page-top section-pad section-dark"
+        aria-labelledby="cases-page-title"
+      >
         <div className="section-heading reveal">
           <span className="section-index">// 01</span>
           <span className="mono">ВСЕ КЕЙСЫ / PORTFOLIO</span>
@@ -32,7 +49,7 @@ export default function Cases() {
           </span>
         </div>
         <div className="cases-header reveal">
-          <h1 className="display">
+          <h1 className="display" id="cases-page-title">
             Работающие
             <br />
             <em>системы.</em>
@@ -43,6 +60,10 @@ export default function Cases() {
           </p>
         </div>
 
+        {/* Keeps the card titles one level below the page title. */}
+        <h2 style={srOnly} id="published-cases-title">
+          Опубликованные кейсы
+        </h2>
         <div className="cases-list">
           {publishedCases.map((item, index) => (
             <article
@@ -101,10 +122,15 @@ export default function Cases() {
         </div>
 
         {draftCases.length > 0 && (
-          <div className="extra-cases reveal">
+          <section
+            className="extra-cases reveal"
+            aria-labelledby="extra-cases-title"
+          >
             <div className="section-heading">
               <span className="section-index">// 02</span>
-              <span className="mono">ДРУГИЕ ПРОЕКТЫ КОМАНДЫ</span>
+              <h2 className="mono" id="extra-cases-title">
+                ДРУГИЕ ПРОЕКТЫ КОМАНДЫ
+              </h2>
             </div>
             <p className="extra-cases-note">
               Проекты, которые команда делала за пределами B2B-направления.
@@ -123,7 +149,7 @@ export default function Cases() {
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
         )}
 
         <div className="cases-footer reveal">

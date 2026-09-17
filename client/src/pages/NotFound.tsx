@@ -1,11 +1,26 @@
+import { useEffect, useRef } from "react";
 import { ArrowUpRight } from "lucide-react";
 import { Link } from "wouter";
 import { primaryCta } from "@/content/site";
 
 export default function NotFound() {
+  const mainRef = useRef<HTMLElement>(null);
+
+  // This page renders outside SiteShell, so it moves focus itself: without it
+  // a visitor who followed a dead link stays focused on the previous page.
+  useEffect(() => {
+    mainRef.current?.focus();
+  }, []);
+
   return (
     <div className="site-shell">
-      <main className="notfound section-pad" id="top">
+      <main
+        className="notfound section-pad"
+        id="top"
+        ref={mainRef}
+        tabIndex={-1}
+        style={{ outline: "none" }}
+      >
         <div className="notfound-grid" aria-hidden="true" />
         <div className="section-heading">
           <span className="section-index">// 404</span>

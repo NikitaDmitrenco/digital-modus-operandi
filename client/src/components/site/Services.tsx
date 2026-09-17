@@ -4,14 +4,18 @@ import { services } from "@/content/services";
 
 export default function Services() {
   return (
-    <section id="services" className="services section-pad">
+    <section
+      id="services"
+      className="services section-pad"
+      aria-labelledby="services-title"
+    >
       <div className="section-heading reveal">
         <span className="section-index">// 03</span>
         <span className="mono">ЧТО РАЗРАБАТЫВАЕМ / PRODUCTS</span>
         <span className="heading-note">продукты, а не часы</span>
       </div>
       <div className="services-header reveal">
-        <h2 className="display">
+        <h2 className="display" id="services-title">
           Собираем
           <br />
           <em>системы.</em>

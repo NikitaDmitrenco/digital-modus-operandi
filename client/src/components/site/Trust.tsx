@@ -3,7 +3,7 @@ import { trustIntro, trustPoints } from "@/content/trust";
 
 export default function Trust() {
   return (
-    <section id="why" className="why section-pad">
+    <section id="why" className="why section-pad" aria-labelledby="why-title">
       <div className="section-heading reveal">
         <span className="section-index">// 06</span>
         <span className="mono">ПОЧЕМУ С НАМИ БЕЗОПАСНО / RISK</span>
@@ -11,7 +11,7 @@ export default function Trust() {
       <div className="why-layout">
         <div className="why-title reveal">
           <span className="mono">{trustIntro.label}</span>
-          <h2 className="display">
+          <h2 className="display" id="why-title">
             {trustIntro.titleStart}
             <br />
             <em>{trustIntro.titleAccent}</em>

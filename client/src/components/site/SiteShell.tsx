@@ -1,9 +1,36 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { ArrowUpRight, Mail, Menu, Send, X } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useSiteChrome } from "@/hooks/useSiteChrome";
 import { track } from "@/lib/analytics";
 import { brand, footer, navItems, primaryCta } from "@/content/site";
+
+/** Off-screen but still read by screen readers — no CSS file changes needed. */
+const srOnly: CSSProperties = {
+  position: "absolute",
+  width: 1,
+  height: 1,
+  margin: -1,
+  padding: 0,
+  overflow: "hidden",
+  clip: "rect(0 0 0 0)",
+  clipPath: "inset(50%)",
+  whiteSpace: "nowrap",
+  border: 0,
+};
+
+/**
+ * Every page renders its own SiteShell, so a route change remounts this
+ * component and an instance ref cannot tell "first load" from "navigation".
+ * Module scope survives that remount.
+ */
+let lastPath: string | null = null;
 
 type SiteShellProps = {
   children: ReactNode;
@@ -20,8 +47,11 @@ export default function SiteShell({
 }: SiteShellProps) {
   const [loading, setLoading] = useState(showPreloader);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [routeMessage, setRouteMessage] = useState("");
   const cursorRef = useRef<HTMLDivElement>(null);
   const cursorDotRef = useRef<HTMLDivElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+  const [location] = useLocation();
 
   useSiteChrome(cursorRef, cursorDotRef);
 
@@ -30,6 +60,25 @@ export default function SiteShell({
     const timer = window.setTimeout(() => setLoading(false), 1350);
     return () => window.clearTimeout(timer);
   }, [showPreloader]);
+
+  /**
+   * A client-side route change replaces the page without moving focus, so a
+   * screen reader stays silent and the keyboard user keeps the old position.
+   * Focus the main region and announce the new page title politely.
+   */
+  useEffect(() => {
+    if (lastPath === null || lastPath === location) {
+      lastPath = location;
+      return;
+    }
+    lastPath = location;
+    setMenuOpen(false);
+    mainRef.current?.focus();
+    // The page component updates document.title in its own effect, which runs
+    // after this one, so read the fresh title on the next frames.
+    const timer = window.setTimeout(() => setRouteMessage(document.title), 300);
+    return () => window.clearTimeout(timer);
+  }, [location]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -94,13 +143,14 @@ export default function SiteShell({
           </span>
         </Link>
         <div className="header-meta">
-          <span className="status-dot" /> доступные слоты:{" "}
+          <span className="status-dot" aria-hidden="true" /> доступные слоты:{" "}
           <b>{brand.availableSlots}</b>
         </div>
         <button
           className="menu-trigger magnetic"
           onClick={() => setMenuOpen(value => !value)}
           aria-expanded={menuOpen}
+          aria-controls="site-menu"
           aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
         >
           <span>{menuOpen ? "close" : "menu"}</span>
@@ -112,9 +162,13 @@ export default function SiteShell({
         </button>
       </header>
 
-      <div
+      {/* The whole overlay is the navigation panel, so the intro and the
+          footer inside it stay within a landmark instead of floating loose. */}
+      <nav
+        id="site-menu"
         className={`menu-overlay ${menuOpen ? "is-visible" : ""}`}
         inert={!menuOpen}
+        aria-label="Основная навигация"
       >
         <div className="menu-grid-line" />
         <div className="menu-intro">
@@ -125,7 +179,7 @@ export default function SiteShell({
             контекст.
           </p>
         </div>
-        <nav className="overlay-nav" aria-label="Основная навигация">
+        <div className="overlay-nav">
           {navItems.map((item, index) => (
             <a
               key={item.href}
@@ -138,15 +192,22 @@ export default function SiteShell({
               <ArrowUpRight size={22} strokeWidth={1.3} />
             </a>
           ))}
-        </nav>
+        </div>
         <div className="menu-footer">
           <span>{brand.email}</span>
           <span>{brand.location}</span>
           <span className="mono">press esc to close</span>
         </div>
-      </div>
+      </nav>
 
-      <main id="top">{children}</main>
+      <p role="status" aria-live="polite" style={srOnly}>
+        {routeMessage}
+      </p>
+
+      {/* tabIndex lets both the skip link and the route change land here. */}
+      <main id="top" ref={mainRef} tabIndex={-1} style={{ outline: "none" }}>
+        {children}
+      </main>
 
       <footer className="site-footer section-pad">
         <div className="footer-main">

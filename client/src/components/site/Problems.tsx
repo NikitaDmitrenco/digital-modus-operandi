@@ -3,18 +3,22 @@ import { problems } from "@/content/site";
 
 export default function Problems() {
   return (
-    <section id="problems" className="problem section-pad section-dark">
+    <section
+      id="problems"
+      className="problem section-pad section-dark"
+      aria-labelledby="problems-title"
+    >
       <div className="section-heading reveal">
         <span className="section-index">// 02</span>
         <span className="mono">РУЧНЫЕ ПРОЦЕССЫ / ГДЕ ТЕРЯЕТСЯ ВРЕМЯ</span>
       </div>
       <div className="problem-layout">
         <div className="problem-lead reveal">
-          <p className="kicker">
+          <h2 className="kicker" id="problems-title">
             {problems.title}
             <br />
             <span>{problems.titleAccent}</span>
-          </p>
+          </h2>
           <div className="signal-mark" aria-hidden="true">
             <span />
             <span />

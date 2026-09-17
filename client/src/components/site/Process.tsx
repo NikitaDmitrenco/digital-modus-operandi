@@ -3,14 +3,18 @@ import { processIntro, processSteps } from "@/content/process";
 
 export default function Process() {
   return (
-    <section id="process" className="process section-pad">
+    <section
+      id="process"
+      className="process section-pad"
+      aria-labelledby="process-title"
+    >
       <div className="section-heading reveal">
         <span className="section-index">// 05</span>
         <span className="mono">КАК РАБОТАЕМ / PROCESS</span>
         <span className="heading-note">{processIntro.note}</span>
       </div>
       <div className="process-intro reveal">
-        <h2 className="display">
+        <h2 className="display" id="process-title">
           {processIntro.titleStart}
           <br />
           <em>{processIntro.titleAccent}</em>
