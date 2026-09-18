@@ -182,15 +182,120 @@ async function deliver(
   return { delivered, reason: Array.from(new Set(reasons)).join("; ") };
 }
 
-export default async function handler(request: Request): Promise<Response> {
-  if (request.method !== "POST") {
-    return json({ error: "method_not_allowed" }, 405);
+/**
+ * Самопроверка канала: `GET /api/lead?check=1`.
+ *
+ * Отвечает на единственный вопрос, ради которого иначе приходится лезть в
+ * логи: видит ли функция свои переменные и пускает ли Telegram бота в каждый
+ * из чатов. Оба вызова — `getMe` и `getChat` — только читают, ничего никому
+ * не отправляют. Наружу уходят статусы, а не значения: ни токена, ни номеров
+ * чатов в ответе нет, чаты нумеруются в том порядке, в каком перечислены в
+ * переменной.
+ */
+async function selfCheck(): Promise<Record<string, unknown>> {
+  const botToken = env("TELEGRAM_BOT_TOKEN");
+  const chats = chatIds();
+  const report: Record<string, unknown> = {
+    telegramToken: botToken ? "задан" : "НЕ ЗАДАН",
+    chatsConfigured: chats.length,
+    webhook: env("LEAD_WEBHOOK_URL") ? "задан" : "не задан",
+  };
+
+  if (!botToken) {
+    report.verdict =
+      "TELEGRAM_BOT_TOKEN не виден функции: задайте его в переменных Vercel " +
+      "для Production и передеплойте.";
+    return report;
   }
 
+  const me = await askTelegram(botToken, "getMe");
+  report.tokenValid = me.ok;
+  if (me.ok) report.bot = me.username ? `@${me.username}` : "";
+  else report.tokenError = me.error;
+
+  if (!me.ok) {
+    report.verdict =
+      "Telegram не принимает токен. Скорее всего он отозван или скопирован " +
+      "с лишними символами — возьмите свежий у @BotFather и замените в Vercel.";
+    return report;
+  }
+
+  if (chats.length === 0) {
+    report.verdict =
+      "TELEGRAM_CHAT_ID пуст: заявке некуда идти. Впишите id получателя " +
+      "(несколько — через запятую) и передеплойте.";
+    return report;
+  }
+
+  const checks = await Promise.all(
+    chats.map(async (chat, index) => {
+      const answer = await askTelegram(botToken, "getChat", chat);
+      return answer.ok
+        ? { chat: index + 1, ok: true }
+        : { chat: index + 1, ok: false, error: answer.error };
+    })
+  );
+  report.chats = checks;
+
+  const broken = checks.filter(check => !check.ok);
+  report.verdict =
+    broken.length === 0
+      ? "Канал настроен: токен принят, бот видит каждый чат. Если заявки всё " +
+        "равно не доходят — смотрите строку [lead] в логах Vercel."
+      : `Бот не может писать в ${broken.length} из ${checks.length} чатов. ` +
+        "Обычно это значит, что получатель не нажимал /start в боте или id " +
+        "указан неверно.";
+  return report;
+}
+
+type TelegramAnswer =
+  | { ok: true; username?: string }
+  | { ok: false; error: string };
+
+async function askTelegram(
+  botToken: string,
+  method: "getMe" | "getChat",
+  chatId?: string
+): Promise<TelegramAnswer> {
+  const query = chatId ? `?chat_id=${encodeURIComponent(chatId)}` : "";
+  try {
+    const response = await fetch(
+      `https://api.telegram.org/bot${botToken}/${method}${query}`
+    );
+    const payload = (await response.json().catch(() => null)) as {
+      ok?: boolean;
+      description?: string;
+      result?: { username?: string };
+    } | null;
+    if (response.ok && payload?.ok) {
+      return { ok: true, username: payload.result?.username };
+    }
+    return {
+      ok: false,
+      error: `${response.status}: ${(payload?.description ?? "").slice(0, 200)}`,
+    };
+  } catch (error) {
+    return { ok: false, error: `сеть: ${String(error).slice(0, 200)}` };
+  }
+}
+
+export default async function handler(request: Request): Promise<Response> {
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip") ||
     "unknown";
+
+  if (request.method === "GET") {
+    if (!new URL(request.url).searchParams.has("check")) {
+      return json({ error: "method_not_allowed" }, 405);
+    }
+    if (isRateLimited(ip)) return json({ error: "rate_limited" }, 429);
+    return json(await selfCheck(), 200);
+  }
+
+  if (request.method !== "POST") {
+    return json({ error: "method_not_allowed" }, 405);
+  }
 
   if (isRateLimited(ip)) {
     return json({ error: "rate_limited" }, 429);

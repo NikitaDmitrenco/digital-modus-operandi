@@ -96,6 +96,116 @@ function configureTelegram() {
   vi.stubEnv("TELEGRAM_CHAT_ID", "-100500");
 }
 
+describe("самопроверка GET /api/lead?check=1", () => {
+  function check() {
+    return handler(
+      new Request("https://dmo.md/api/lead?check=1", { method: "GET" })
+    );
+  }
+
+  it("говорит прямым текстом, что токен не виден функции", async () => {
+    const response = await check();
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as Record<string, string>;
+    expect(payload.telegramToken).toBe("НЕ ЗАДАН");
+    expect(payload.verdict).toContain("передеплойте");
+  });
+
+  it("сообщает об отозванном токене, не дойдя до проверки чатов", async () => {
+    configureTelegram();
+    const fetchMock = vi.fn(
+      async () =>
+        new Response('{"ok":false,"description":"Unauthorized"}', {
+          status: 401,
+        })
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const payload = (await (await check()).json()) as Record<string, unknown>;
+
+    expect(payload.tokenValid).toBe(false);
+    expect(payload.tokenError).toContain("Unauthorized");
+    expect(String(payload.verdict)).toContain("BotFather");
+    // getChat вызывать незачем: без рабочего токена ответ был бы тем же.
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("называет номер чата, в который бот не может писать", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "123:ABC");
+    vi.stubEnv("TELEGRAM_CHAT_ID", "670030360,-100500");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        if (String(url).includes("getMe")) {
+          return new Response('{"ok":true,"result":{"username":"dmobot"}}', {
+            status: 200,
+          });
+        }
+        return String(url).includes("-100500")
+          ? new Response('{"ok":false,"description":"chat not found"}', {
+              status: 400,
+            })
+          : new Response('{"ok":true,"result":{}}', { status: 200 });
+      })
+    );
+
+    const payload = (await (await check()).json()) as {
+      bot: string;
+      chats: { chat: number; ok: boolean; error?: string }[];
+      verdict: string;
+    };
+
+    expect(payload.bot).toBe("@dmobot");
+    expect(payload.chats).toEqual([
+      { chat: 1, ok: true },
+      { chat: 2, ok: false, error: "400: chat not found" },
+    ]);
+    expect(payload.verdict).toContain("/start");
+  });
+
+  it("подтверждает исправный канал", async () => {
+    configureTelegram();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response('{"ok":true,"result":{"username":"dmobot"}}', {
+            status: 200,
+          })
+      )
+    );
+
+    const payload = (await (await check()).json()) as {
+      chats: { ok: boolean }[];
+      verdict: string;
+    };
+
+    expect(payload.chats).toEqual([{ chat: 1, ok: true }]);
+    expect(payload.verdict).toContain("Канал настроен");
+  });
+
+  it("не выдаёт наружу ни токен, ни номера чатов", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "секретный-токен");
+    vi.stubEnv("TELEGRAM_CHAT_ID", "670030360,-100500");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response('{"ok":true,"result":{"username":"dmobot"}}', {
+            status: 200,
+          })
+      )
+    );
+
+    const raw = await (await check()).text();
+
+    expect(raw).not.toContain("секретный-токен");
+    expect(raw).not.toContain("670030360");
+    expect(raw).not.toContain("-100500");
+  });
+});
+
 describe("method handling", () => {
   it("rejects GET with 405", async () => {
     const response = await handler(
