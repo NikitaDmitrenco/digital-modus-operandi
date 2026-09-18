@@ -1,0 +1,9 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "tsBuildInfoFile": "./node_modules/typescript/tsbuildinfo.test",
+    "types": ["node", "vite/client"]
+  },
+  "include": ["client/src/**/*", "api/**/*", "tests/**/*"],
+  "exclude": ["node_modules", "build", "dist"]
+}

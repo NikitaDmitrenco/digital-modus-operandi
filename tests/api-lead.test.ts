@@ -18,7 +18,7 @@ let ipCounter = 0;
 
 async function loadHandler(): Promise<Handler> {
   vi.resetModules();
-  const mod = await import("./lead");
+  const mod = await import("../api/lead");
   return mod.default as Handler;
 }
 
@@ -53,9 +53,18 @@ function post(
   });
 }
 
-/** fetch stub that reports success and records what was sent. */
+/**
+ * fetch stub that reports success and records what was sent.
+ *
+ * Аргументы объявлены явно, хотя тело их не использует: без этого `mock.calls`
+ * получает тип пустого кортежа, и любой разбор записанного вызова приходится
+ * продавливать приведениями, которые заодно глушат настоящие ошибки.
+ */
 function okFetch() {
-  return vi.fn(async () => new Response("{}", { status: 200 }));
+  return vi.fn(
+    async (_input: string, _init: RequestInit) =>
+      new Response("{}", { status: 200 })
+  );
 }
 
 function telegramPayload(fetchMock: ReturnType<typeof okFetch>) {
@@ -63,7 +72,7 @@ function telegramPayload(fetchMock: ReturnType<typeof okFetch>) {
     String(url).includes("api.telegram.org")
   );
   if (!call) throw new Error("no Telegram call recorded");
-  const init = call[1] as RequestInit;
+  const init = call[1];
   return JSON.parse(String(init.body)) as {
     chat_id: string;
     text: string;
@@ -403,7 +412,7 @@ describe("delivery configuration", () => {
 
     expect(response.status).toBe(200);
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const [url, init] = fetchMock.mock.calls[0];
     expect(url).toBe("https://hooks.example/lead");
     const payload = JSON.parse(String(init.body));
     expect(payload.name).toBe("Иван Петров");
@@ -418,7 +427,7 @@ describe("delivery configuration", () => {
 
     await handler(post(validLead));
 
-    const [url] = fetchMock.mock.calls[0] as [string];
+    const [url] = fetchMock.mock.calls[0];
     expect(url).toBe("https://api.telegram.org/bot123:ABC/sendMessage");
     const payload = telegramPayload(fetchMock);
     expect(payload.chat_id).toBe("-100500");
@@ -432,7 +441,7 @@ describe("несколько получателей в TELEGRAM_CHAT_ID", () => 
   function telegramChats(fetchMock: ReturnType<typeof okFetch>): string[] {
     return fetchMock.mock.calls
       .filter(([url]) => String(url).includes("api.telegram.org"))
-      .map(([, init]) => JSON.parse(String((init as RequestInit).body)))
+      .map(([, init]) => JSON.parse(String(init.body)))
       .map((payload: { chat_id: string }) => payload.chat_id);
   }
 
@@ -603,7 +612,7 @@ describe("message building", () => {
 
     await handler(post({ ...validLead, task: "т".repeat(6000) }));
 
-    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    const [, init] = fetchMock.mock.calls[0];
     const payload = JSON.parse(String(init.body));
     expect(payload.text).not.toContain("т".repeat(4001));
   });
