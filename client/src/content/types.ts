@@ -82,8 +82,6 @@ export type CaseStudy = {
   tags: string[];
   /** Public URL of the running product — the strongest proof there is. */
   liveUrl?: string;
-  /** Public source, when the client allows it. */
-  repoUrl?: string;
   /** Visual tone of the placeholder cover, see `.case-*` in index.css. */
   cover: "case-lime" | "case-violet" | "case-ice" | "case-peach";
   nda: boolean;

@@ -4,7 +4,6 @@ import {
   ArrowUpRight,
   Check,
   ExternalLink,
-  Github,
   ShieldCheck,
 } from "lucide-react";
 import { Link, useParams } from "wouter";
@@ -76,34 +75,22 @@ function CaseView({ item }: { item: CaseStudy }) {
               </span>
             ))}
           </div>
-          {(item.liveUrl || item.repoUrl) && (
+          {item.liveUrl && (
             <div className="case-links">
-              {item.liveUrl && (
-                <a
-                  className="button button-primary magnetic"
-                  href={item.liveUrl}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                  onClick={() =>
-                    track("case_open", {
-                      section: "case_live",
-                      case_name: item.slug,
-                    })
-                  }
-                >
-                  Открыть сайт <ExternalLink size={16} aria-hidden="true" />
-                </a>
-              )}
-              {item.repoUrl && (
-                <a
-                  className="button button-ghost"
-                  href={item.repoUrl}
-                  target="_blank"
-                  rel="noreferrer noopener"
-                >
-                  Исходный код <Github size={16} aria-hidden="true" />
-                </a>
-              )}
+              <a
+                className="button button-primary magnetic"
+                href={item.liveUrl}
+                target="_blank"
+                rel="noreferrer noopener"
+                onClick={() =>
+                  track("case_open", {
+                    section: "case_live",
+                    case_name: item.slug,
+                  })
+                }
+              >
+                Открыть сайт <ExternalLink size={16} aria-hidden="true" />
+              </a>
             </div>
           )}
         </header>
