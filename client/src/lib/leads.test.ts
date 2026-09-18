@@ -2,7 +2,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   attributionSource,
-  buildMailtoFallback,
   captureAttribution,
   getAttribution,
   type LeadPayload,
@@ -194,86 +193,5 @@ describe("getAttribution", () => {
     visit("/?utm_source=vc");
     expect(getAttribution().utm_source).toBe("vc");
     expect(window.sessionStorage.getItem(STORAGE_KEY)).toContain("vc");
-  });
-});
-
-describe("buildMailtoFallback", () => {
-  const payload: LeadPayload = {
-    name: "Иван Петров",
-    contact: "@ivan",
-    task: "Нужна CRM:\nзаявки, логистика & отчёты",
-    link: "https://example.md",
-    elapsedMs: 9000,
-    attribution: {},
-    page: "/",
-  };
-
-  function parse(mailto: string) {
-    const url = new URL(mailto);
-    const params = new URLSearchParams(url.search);
-    return {
-      recipient: url.pathname,
-      subject: params.get("subject") ?? "",
-      body: params.get("body") ?? "",
-    };
-  }
-
-  it("builds a mailto URL addressed to the given mailbox", () => {
-    const mailto = buildMailtoFallback(payload, "hello@dmo.md");
-    expect(mailto.startsWith("mailto:hello@dmo.md?")).toBe(true);
-    expect(parse(mailto).recipient).toBe("hello@dmo.md");
-  });
-
-  it("carries every filled field into the body", () => {
-    const { subject, body } = parse(buildMailtoFallback(payload, "a@b.md"));
-
-    expect(subject).toBe("Заявка с сайта DMO");
-    expect(body).toContain("Имя / компания: Иван Петров");
-    expect(body).toContain("Контакт: @ivan");
-    expect(body).toContain("Сайт: https://example.md");
-    expect(body).toContain("Нужна CRM:");
-    expect(body).toContain("заявки, логистика & отчёты");
-  });
-
-  it("percent-encodes Cyrillic, newlines and separators", () => {
-    const mailto = buildMailtoFallback(payload, "a@b.md");
-
-    // Nothing raw leaks into the URL that would truncate it.
-    expect(mailto).not.toContain("\n");
-    expect(mailto).not.toContain(" ");
-    expect(mailto).toContain("%0A"); // newline
-    expect(mailto).toContain("%D0"); // Cyrillic, UTF-8 encoded
-
-    const { body } = parse(mailto);
-    expect(body.split("\n").length).toBeGreaterThan(2);
-    expect(body).toContain("\n");
-  });
-
-  it("drops the site line entirely when the optional link is missing", () => {
-    const { body } = parse(
-      buildMailtoFallback({ ...payload, link: undefined }, "a@b.md")
-    );
-
-    expect(body).not.toContain("Сайт:");
-    // No stray blank line where the site line would have been: the only empty
-    // line is the single separator before the task text.
-    expect(body.split("\n").filter(line => line.trim() === "")).toHaveLength(1);
-    expect(body).not.toContain("\n\n\n");
-  });
-
-  it("separates the contact block from the task text with one blank line", () => {
-    const { body } = parse(buildMailtoFallback(payload, "a@b.md"));
-    const [contacts, task] = body.split("\n\n");
-
-    expect(contacts).toContain("Имя / компания:");
-    expect(contacts).toContain("Контакт:");
-    expect(task).toBe(payload.task);
-  });
-
-  it("does not lose an ampersand or an equals sign from the task text", () => {
-    const { body } = parse(
-      buildMailtoFallback({ ...payload, task: "a&b=c?d #hash" }, "a@b.md")
-    );
-    expect(body).toContain("a&b=c?d #hash");
   });
 });

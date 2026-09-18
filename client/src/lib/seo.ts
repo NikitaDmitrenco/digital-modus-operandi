@@ -138,8 +138,7 @@ export const organizationJsonLd = {
   url: SITE_URL,
   description:
     "Разработка B2B-сайтов, каталогов, личных кабинетов и внутренних CRM-систем с интеграцией в CRM, ERP и складской учёт.",
-  email: "hello@dmo.agency",
-  sameAs: ["https://t.me/dmo_agency"],
+  sameAs: ["https://t.me/Arseniy_Karpenko", "https://t.me/dmorequestsbot"],
   knowsAbout: [
     "B2B-сайты и каталоги",
     "Личные кабинеты для клиентов",

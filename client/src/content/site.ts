@@ -5,15 +5,13 @@ export const brand = {
   short: "DMO",
   /** Secondary brand line. Never the main offer. */
   tagline: "Делаем сложное понятным.",
-  email: "hello@dmo.agency",
-  telegram: "@dmo_agency",
-  telegramUrl: "https://t.me/dmo_agency",
+  /** Живой человек: сюда пишут, когда нужен разговор, а не форма. */
+  telegramPerson: "@Arseniy_Karpenko",
+  telegramPersonUrl: "https://t.me/Arseniy_Karpenko",
+  /** Бот для заявок: запасной канал, если форма не отправилась. */
+  telegramBot: "@dmorequestsbot",
+  telegramBotUrl: "https://t.me/dmorequestsbot",
   location: "Кишинёв / Комрат / remote",
-  /**
-   * OPEN QUESTION for the client: is the slot counter a real constraint?
-   * Left untouched until confirmed — see DMO_REWORK_PROGRESS.md §4.
-   */
-  availableSlots: "02",
 };
 
 /** Single CTA wording across the whole site. */

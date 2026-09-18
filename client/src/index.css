@@ -332,27 +332,6 @@ button {
 .brand-name b {
   font-weight: 400;
 }
-.header-meta {
-  font: 10px var(--font-mono);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-left: auto;
-  margin-right: 36px;
-  color: #b6bdb0;
-}
-.header-meta b {
-  color: var(--lime);
-  font-weight: 400;
-}
-.status-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-right: 6px;
-  border-radius: 50%;
-  background: var(--lime);
-  box-shadow: 0 0 10px var(--lime);
-}
 .menu-trigger {
   display: flex;
   gap: 11px;
@@ -2051,9 +2030,6 @@ textarea:focus-visible,
   .section-pad {
     padding-left: 6vw;
     padding-right: 6vw;
-  }
-  .header-meta {
-    display: none;
   }
   .hero-title {
     font-size: clamp(4.7rem, 14vw, 8.5rem);

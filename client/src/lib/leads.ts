@@ -136,22 +136,3 @@ export async function submitLead(payload: LeadPayload): Promise<LeadResult> {
     return { ok: false, reason: "network" };
   }
 }
-
-/** Fallback when the lead endpoint is unavailable: a prefilled email draft. */
-export function buildMailtoFallback(
-  payload: LeadPayload,
-  email: string
-): string {
-  // Contact block, a blank line, then the task text. The blank line is built
-  // separately: filtering falsy entries would have swallowed it along with the
-  // empty string left by a missing `link`.
-  const header = [
-    `Имя / компания: ${payload.name}`,
-    `Контакт: ${payload.contact}`,
-    payload.link ? `Сайт: ${payload.link}` : "",
-  ].filter(Boolean);
-
-  const body = `${header.join("\n")}\n\n${payload.task}`;
-
-  return `mailto:${email}?subject=${encodeURIComponent("Заявка с сайта DMO")}&body=${encodeURIComponent(body)}`;
-}

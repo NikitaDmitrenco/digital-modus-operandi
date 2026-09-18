@@ -5,18 +5,10 @@ import {
   useState,
   type CSSProperties,
 } from "react";
-import {
-  ArrowUpRight,
-  Check,
-  Command,
-  Loader2,
-  Mail,
-  Send,
-} from "lucide-react";
+import { ArrowUpRight, Check, Command, Loader2, Bot, Send } from "lucide-react";
 import { track } from "@/lib/analytics";
 import {
   attributionSource,
-  buildMailtoFallback,
   getAttribution,
   submitLead,
   type LeadPayload,
@@ -104,7 +96,6 @@ export default function Contact() {
   );
   const [startedTracked, setStartedTracked] = useState(false);
   const mountedAt = useRef(Date.now());
-  const [fallbackHref, setFallbackHref] = useState("");
   /** Announced by the live region; remounted on every attempt so it re-fires. */
   const [alert, setAlert] = useState("");
   const [attempt, setAttempt] = useState(0);
@@ -196,7 +187,6 @@ export default function Contact() {
     }
 
     if (result.reason === "not_configured" || result.reason === "network") {
-      setFallbackHref(buildMailtoFallback(payload, brand.email));
       setState("fallback");
       return;
     }
@@ -240,16 +230,25 @@ export default function Contact() {
           <p>{finalCta.description}</p>
           <div className="contact-links">
             <a
-              href={`mailto:${brand.email}`}
-              onClick={() => track("email_click", { section: "contact" })}
+              href={brand.telegramPersonUrl}
+              onClick={() =>
+                track("telegram_click", {
+                  section: "contact",
+                  source: "person",
+                })
+              }
             >
-              <Mail size={17} aria-hidden="true" /> {brand.email}
+              <Send size={17} aria-hidden="true" /> Написать человеку —{" "}
+              {brand.telegramPerson}
             </a>
             <a
-              href={brand.telegramUrl}
-              onClick={() => track("telegram_click", { section: "contact" })}
+              href={brand.telegramBotUrl}
+              onClick={() =>
+                track("telegram_click", { section: "contact", source: "bot" })
+              }
             >
-              <Send size={17} aria-hidden="true" /> Telegram / {brand.telegram}
+              <Bot size={17} aria-hidden="true" /> Оставить заявку —{" "}
+              {brand.telegramBot}
             </a>
           </div>
         </div>
@@ -271,7 +270,7 @@ export default function Contact() {
             </p>
             <p className="form-note">
               Если ответа не будет — напишите напрямую в Telegram{" "}
-              {brand.telegram}.
+              {brand.telegramPerson}.
             </p>
           </div>
         ) : (
@@ -387,9 +386,11 @@ export default function Contact() {
             {state === "fallback" && (
               <p className="form-fallback" role="status">
                 <Check size={14} aria-hidden="true" /> Форма не смогла
-                отправиться автоматически.{" "}
-                <a href={fallbackHref}>Открыть письмо с вашим текстом</a> или
-                написать в <a href={brand.telegramUrl}>Telegram</a>.
+                отправиться автоматически. Текст остался в полях — скопируйте
+                его и отправьте боту{" "}
+                <a href={brand.telegramBotUrl}>{brand.telegramBot}</a> или
+                напишите напрямую{" "}
+                <a href={brand.telegramPersonUrl}>{brand.telegramPerson}</a>.
               </p>
             )}
           </form>

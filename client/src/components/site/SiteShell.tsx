@@ -5,7 +5,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
-import { ArrowUpRight, Mail, Menu, Send, X } from "lucide-react";
+import { ArrowUpRight, Bot, Menu, Send, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useSiteChrome } from "@/hooks/useSiteChrome";
 import { track } from "@/lib/analytics";
@@ -142,10 +142,6 @@ export default function SiteShell({
             <b>modus operandi</b>
           </span>
         </Link>
-        <div className="header-meta">
-          <span className="status-dot" aria-hidden="true" /> доступные слоты:{" "}
-          <b>{brand.availableSlots}</b>
-        </div>
         <button
           className="menu-trigger magnetic"
           onClick={() => setMenuOpen(value => !value)}
@@ -194,7 +190,7 @@ export default function SiteShell({
           ))}
         </div>
         <div className="menu-footer">
-          <span>{brand.email}</span>
+          <span>{brand.telegramPerson}</span>
           <span>{brand.location}</span>
           <span className="mono">press esc to close</span>
         </div>
@@ -236,18 +232,22 @@ export default function SiteShell({
           <span className="mono">{brand.tagline}</span>
           <div className="socials">
             <a
-              href={brand.telegramUrl}
-              aria-label="Telegram"
-              onClick={() => track("telegram_click", { section: "footer" })}
+              href={brand.telegramPersonUrl}
+              aria-label={`Написать в Telegram ${brand.telegramPerson}`}
+              onClick={() =>
+                track("telegram_click", { section: "footer", source: "person" })
+              }
             >
               <Send size={16} />
             </a>
             <a
-              href={`mailto:${brand.email}`}
-              aria-label="Email"
-              onClick={() => track("email_click", { section: "footer" })}
+              href={brand.telegramBotUrl}
+              aria-label={`Оставить заявку в боте ${brand.telegramBot}`}
+              onClick={() =>
+                track("telegram_click", { section: "footer", source: "bot" })
+              }
             >
-              <Mail size={16} />
+              <Bot size={16} />
             </a>
           </div>
         </div>
