@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   attributionSource,
   captureAttribution,
   getAttribution,
+  submitLead,
   type LeadPayload,
 } from "./leads";
 
@@ -193,5 +194,70 @@ describe("getAttribution", () => {
     visit("/?utm_source=vc");
     expect(getAttribution().utm_source).toBe("vc");
     expect(window.sessionStorage.getItem(STORAGE_KEY)).toContain("vc");
+  });
+});
+
+describe("submitLead", () => {
+  const lead: LeadPayload = {
+    name: "Иван Петров",
+    contact: "@ivan",
+    task: "Нужна внутренняя система учёта заявок",
+    link: "",
+    page: "/",
+    elapsedMs: 9000,
+    honey_ref: "",
+    attribution: {},
+  };
+
+  it("не висит бесконечно, а обрывает запрос по таймауту", async () => {
+    vi.useFakeTimers();
+    // Сервер, который принял соединение и замолчал: без таймаута этот промис
+    // не разрешится никогда, и кнопка останется в состоянии «Отправляем».
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        (_url: string, init: RequestInit) =>
+          new Promise((_resolve, reject) => {
+            init.signal?.addEventListener("abort", () =>
+              reject(new DOMException("aborted", "AbortError"))
+            );
+          })
+      )
+    );
+
+    const pending = submitLead(lead);
+    await vi.advanceTimersByTimeAsync(20_000);
+
+    await expect(pending).resolves.toEqual({ ok: false, reason: "network" });
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("не обрывает запрос, который успел ответить", async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("{}", { status: 200 }))
+    );
+
+    const pending = submitLead(lead);
+    await vi.advanceTimersByTimeAsync(20_000);
+
+    await expect(pending).resolves.toEqual({ ok: true });
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("считает 500 технической ошибкой, а не отказом формы", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("{}", { status: 500 }))
+    );
+
+    await expect(submitLead(lead)).resolves.toEqual({
+      ok: false,
+      reason: "network",
+    });
+    vi.unstubAllGlobals();
   });
 });

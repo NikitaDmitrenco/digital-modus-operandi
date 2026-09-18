@@ -117,12 +117,22 @@ export type LeadResult =
 const ENDPOINT =
   (import.meta.env.VITE_LEAD_ENDPOINT as string | undefined) || "/api/lead";
 
+/**
+ * Потолок ожидания ответа. Без него зависший запрос оставляет кнопку в
+ * состоянии «Отправляем» навсегда: человек не понимает, ушла заявка или нет,
+ * и уходит. Лучше честно сказать, что не получилось, чем крутить спиннер.
+ */
+const TIMEOUT_MS = 15_000;
+
 export async function submitLead(payload: LeadPayload): Promise<LeadResult> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
   try {
     const response = await fetch(ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
 
     if (response.ok) return { ok: true };
@@ -134,5 +144,7 @@ export async function submitLead(payload: LeadPayload): Promise<LeadResult> {
     return { ok: false, reason: "network" };
   } catch {
     return { ok: false, reason: "network" };
+  } finally {
+    clearTimeout(timer);
   }
 }
