@@ -24,6 +24,8 @@ export const team: TeamMember[] = [
       { label: "Klipi AI", slug: "klipi-ai" },
     ],
     portrait: "portrait-a",
+    image: "/team/boris.webp",
+    imageAlt: "Борис — отвечает за AI-интеграции и внутренние системы DMO",
   },
   {
     id: "D-02",
@@ -37,7 +39,7 @@ export const team: TeamMember[] = [
       { label: "Delo", slug: "delo" },
     ],
     portrait: "portrait-b",
-    image: "/team/nikita.jpg",
+    image: "/team/nikita.webp",
     imageAlt: "Никита — full-stack разработчик DMO",
   },
   {

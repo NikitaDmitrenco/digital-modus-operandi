@@ -47,6 +47,12 @@ export type TeamMember = {
   skills: string[];
   /** Projects this person shipped; `slug` links to the case when it is published. */
   projects?: { label: string; slug?: string }[];
+  /**
+   * Crop of the portrait inside its frame (`object-position`). Photos are shot
+   * at different distances, so this is the knob that puts every head at the
+   * same height across the row — set it per photo, then look at the result.
+   */
+  imagePosition?: string;
   portrait: string;
   image?: string;
   imageAlt?: string;

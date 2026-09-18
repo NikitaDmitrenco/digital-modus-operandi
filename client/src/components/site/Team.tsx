@@ -21,6 +21,11 @@ function Portrait({ person }: { person: TeamMember }) {
           width={320}
           height={315}
           onError={() => setFailed(true)}
+          style={
+            person.imagePosition
+              ? { objectPosition: person.imagePosition }
+              : undefined
+          }
         />
       ) : (
         <>

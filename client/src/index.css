@@ -2363,9 +2363,12 @@ textarea:focus-visible,
   width: 100%;
   height: 100%;
   object-fit: cover;
-}
-.portrait-d.portrait-has-image .portrait-image {
-  object-position: center 40%;
+  /* Рамка портрета меняет пропорции по брейкпоинтам, а фотографии приведены к
+     одному формату 4:5 с макушкой на 10,6% высоты. Сдвиг 10% держит голову на
+     одной высоте на всех ширинах и не даёт срезать её на двухколоночной сетке,
+     где рамка шире всего. Отдельной фотографии можно задать своё значение
+     полем imagePosition. */
+  object-position: center 10%;
 }
 .portrait-has-image::before,
 .portrait-has-image::after {
