@@ -39,6 +39,8 @@ export const team: TeamMember[] = [
       { label: "Delo", slug: "delo" },
     ],
     portrait: "portrait-b",
+    image: "/team/nikita.webp",
+    imageAlt: "Никита — full-stack разработчик DMO",
   },
   {
     id: "D-04",
@@ -57,7 +59,7 @@ export const team: TeamMember[] = [
     bio: "10 лет ведёт маркетинговые проекты. Отвечает за то, чтобы договорённости превращались в план работ, сроки и понятный результат, а не в переписку без итога.",
     skills: ["project", "process", "communication"],
     portrait: "portrait-c",
-    image: "/team/matvey.jpg",
+    image: "/team/matvey.webp",
     imageAlt: "Матвей — проджект-менеджер DMO",
   },
 ];
