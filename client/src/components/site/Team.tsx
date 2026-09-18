@@ -1,6 +1,5 @@
-import { Fragment, useState } from "react";
+import { useState } from "react";
 import { ArrowUpRight, ScanLine } from "lucide-react";
-import { Link } from "wouter";
 import { team, teamIntro } from "@/content/team";
 import type { TeamMember } from "@/content/types";
 
@@ -79,23 +78,6 @@ export default function Team() {
               <ArrowUpRight size={19} strokeWidth={1.2} aria-hidden="true" />
             </div>
             <p className="person-bio">{person.bio}</p>
-            {person.projects && person.projects.length > 0 && (
-              <p className="person-projects">
-                <span className="mono">Проекты</span>{" "}
-                {person.projects.map((project, position) => (
-                  <Fragment key={project.label}>
-                    {position > 0 && ", "}
-                    {project.slug ? (
-                      <Link href={`/cases/${project.slug}`}>
-                        {project.label}
-                      </Link>
-                    ) : (
-                      project.label
-                    )}
-                  </Fragment>
-                ))}
-              </p>
-            )}
             <div className="person-tags">
               {person.skills.map(skill => (
                 <span key={skill}>#{skill}</span>

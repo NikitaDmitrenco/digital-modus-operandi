@@ -1047,22 +1047,6 @@ button {
   margin: 17px 0;
   max-width: 250px;
 }
-.person-projects {
-  color: #4f5a4b;
-  font-size: 12px;
-  line-height: 1.45;
-  margin: -6px 0 16px;
-}
-.person-projects .mono {
-  color: #626b5f;
-}
-.person-projects a {
-  color: #2f3f19;
-  border-bottom: 1px solid rgba(47, 63, 25, 0.35);
-}
-.person-projects a:hover {
-  color: #546e29;
-}
 .person-tags {
   margin-top: auto;
   display: flex;
@@ -1954,6 +1938,8 @@ textarea:focus-visible,
   font-size: 12px;
   margin-top: 18px;
 }
+/* Блок «другие проекты команды» снят с /cases до решения клиента,
+   какие проекты туда вернуть. Стили оставлены под возврат блока. */
 .extra-cases {
   padding-top: 88px;
 }

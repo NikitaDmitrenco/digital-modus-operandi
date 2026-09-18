@@ -5,7 +5,7 @@ import SiteShell from "@/components/site/SiteShell";
 import { track } from "@/lib/analytics";
 import { captureAttribution } from "@/lib/leads";
 import { useSeo } from "@/lib/seo";
-import { caseIndex, draftCases, publishedCases } from "@/content/cases";
+import { caseIndex, publishedCases } from "@/content/cases";
 import { primaryCta } from "@/content/site";
 
 /** Off-screen but still part of the heading outline. */
@@ -120,37 +120,6 @@ export default function Cases() {
             </article>
           ))}
         </div>
-
-        {draftCases.length > 0 && (
-          <section
-            className="extra-cases reveal"
-            aria-labelledby="extra-cases-title"
-          >
-            <div className="section-heading">
-              <span className="section-index">// 02</span>
-              <h2 className="mono" id="extra-cases-title">
-                ДРУГИЕ ПРОЕКТЫ КОМАНДЫ
-              </h2>
-            </div>
-            <p className="extra-cases-note">
-              Проекты, которые команда делала за пределами B2B-направления.
-              Развёрнутые карточки готовим: публикуем только те факты, которые
-              можем подтвердить.
-            </p>
-            <ul className="extra-cases-list">
-              {draftCases.map(item => (
-                <li key={item.slug}>
-                  <span className="mono">{item.industry}</span>
-                  <strong>{item.client}</strong>
-                  <p>{item.title}</p>
-                  {item.proof && (
-                    <span className="extra-proof mono">{item.proof}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
 
         <div className="cases-footer reveal">
           <a href="/#contact" className="button button-primary magnetic">

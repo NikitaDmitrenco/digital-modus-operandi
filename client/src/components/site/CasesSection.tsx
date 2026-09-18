@@ -78,7 +78,7 @@ export default function CasesSection() {
       </div>
       <div className="cases-footer reveal">
         <Link href="/cases" className="text-link">
-          Все кейсы и проекты <ArrowUpRight size={17} aria-hidden="true" />
+          Все кейсы <ArrowUpRight size={17} aria-hidden="true" />
         </Link>
       </div>
     </section>
