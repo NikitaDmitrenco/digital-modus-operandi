@@ -9,25 +9,24 @@ export const teamIntro = {
 
 /**
  * Roles are described through value for the project, not through a CV.
- * Boris and Arseniy: texts confirmed by the client.
- * Nikita and Matvey: reformulated from the copy already in the repository,
- * pending client confirmation (see DMO_REWORK_PROGRESS.md §4).
+ * All four confirmed by the client (18.09.2026). The engineering scope of
+ * Boris and Nikita comes from the project review the client supplied.
  */
 export const team: TeamMember[] = [
   {
     id: "D-01",
     name: "Борис",
     role: "AI / SYSTEMS / AUTOMATION",
-    bio: "Отвечает за AI-интеграции, автоматизацию процессов и разработку внутренних web-систем.",
-    skills: ["ai", "automation", "backend", "integrations"],
+    bio: "Строит то, что работает без присмотра: AI-пайплайны, фоновые очереди, интеграции с Telegram и внешними сервисами. Повторные попытки, ограничение нагрузки и разграничение доступа закладывает до запуска, а не после первого сбоя.",
+    skills: ["ai", "automation", "pipelines", "backend"],
     portrait: "portrait-a",
   },
   {
     id: "D-02",
     name: "Никита",
     role: "FULL-STACK / PRODUCT / E-COMMERCE",
-    bio: "Собирает веб-системы целиком — интерфейс, бизнес-логику, админку и интеграции — и отвечает за то, чтобы продукт работал в реальной эксплуатации.",
-    skills: ["fullstack", "product", "ecommerce", "saas"],
+    bio: "Собирает продукт целиком — каталог, заказы, оплату, админку и личные кабинеты. Доводит до состояния, в котором заказчик управляет системой сам, а AI работает внутри сценария, а не отдельной кнопкой.",
+    skills: ["fullstack", "product", "ecommerce", "checkout"],
     portrait: "portrait-b",
     image: "/team/nikita.jpg",
     imageAlt: "Никита — full-stack разработчик DMO",
@@ -35,9 +34,9 @@ export const team: TeamMember[] = [
   {
     id: "D-04",
     name: "Арсений",
-    role: "FOUNDER / SALES / CLIENT ACQUISITION",
-    bio: "Основатель DMO. Отвечает за продажи, поиск и привлечение клиентов, развитие партнёрств и первичную коммуникацию с заказчиком.",
-    skills: ["founder", "sales", "partnerships"],
+    role: "SALES / CLIENT ACQUISITION",
+    bio: "Первый, с кем вы разговариваете. Отвечает за продажи, поиск клиентов и партнёрства — и за то, чтобы задача дошла до команды в том виде, в каком вы её описали.",
+    skills: ["sales", "clients", "partnerships"],
     portrait: "portrait-d",
     image: "/team/arseniy.png",
     imageAlt: "Арсений — основатель DMO",
@@ -46,7 +45,7 @@ export const team: TeamMember[] = [
     id: "D-03",
     name: "Матвей",
     role: "PROJECT MANAGEMENT / PROCESS / COMMUNICATION",
-    bio: "10 лет ведёт проекты. Отвечает за то, чтобы договорённости с заказчиком превращались в план работ, сроки и понятный результат.",
+    bio: "10 лет ведёт проекты. Отвечает за то, чтобы договорённости превращались в план работ, сроки и понятный результат, а не в переписку без итога.",
     skills: ["project", "process", "communication"],
     portrait: "portrait-c",
     image: "/team/matvey.jpg",

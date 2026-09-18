@@ -9,12 +9,6 @@ import { caseIndex, getCaseBySlug } from "@/content/cases";
 import { primaryCta } from "@/content/site";
 import type { CaseStudy } from "@/content/types";
 
-/**
- * The block titles ("01 / ЗАДАЧА") are real headings, but the stylesheet paints
- * them through `.case-block span.mono`, so the colour — and the inline box the
- * span used to produce — are repeated here to keep the rendering pixel-identical
- * without touching index.css.
- */
 function CaseView({ item }: { item: CaseStudy }) {
   useSeo({
     title: `${item.client}: ${item.title} — Digital Modus Operandi`,
@@ -120,6 +114,11 @@ function CaseView({ item }: { item: CaseStudy }) {
               <strong>{item.proof}</strong>
             </div>
             {item.ndaNote && <p className="case-nda-note">{item.ndaNote}</p>}
+            {item.team.length > 0 && (
+              <p className="case-team">
+                <span className="mono">Делал</span> {item.team.join(", ")}
+              </p>
+            )}
           </section>
         </div>
 
