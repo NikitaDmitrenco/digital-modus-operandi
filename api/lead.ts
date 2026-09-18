@@ -279,14 +279,45 @@ async function askTelegram(
   }
 }
 
+/**
+ * Внешняя оболочка: непойманное исключение здесь превращается в 500 без тела,
+ * а 500 без тела неотличим от «функция вообще не запустилась». Разбирать такое
+ * можно только по логам Vercel, которые видит один человек, поэтому текст
+ * ошибки возвращается вызывающему — но лишь для диагностических GET-запросов.
+ * Ответ на отправку заявки остаётся безликим: посетителю незачем видеть стек.
+ */
 export default async function handler(request: Request): Promise<Response> {
+  const diagnostic = request.method === "GET";
+  try {
+    return await route(request);
+  } catch (error) {
+    const detail =
+      error instanceof Error ? error.stack || error.message : String(error);
+    console.error("[lead] исключение в обработчике:", detail);
+    return json(
+      diagnostic
+        ? { error: "handler_crashed", detail: detail.slice(0, 2000) }
+        : { error: "handler_crashed" },
+      500
+    );
+  }
+}
+
+async function route(request: Request): Promise<Response> {
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
     request.headers.get("x-real-ip") ||
     "unknown";
 
   if (request.method === "GET") {
-    if (!new URL(request.url).searchParams.has("check")) {
+    const params = new URL(request.url).searchParams;
+    // Самый дешёвый ответ из возможных: он не читает переменные и никуда не
+    // ходит. Если 500 приходит даже на него — падает не логика, а сам запуск
+    // функции, и искать надо в рантайме, а не в коде.
+    if (params.has("ping")) {
+      return json({ ok: true, runtime: process.version }, 200);
+    }
+    if (!params.has("check")) {
       return json({ error: "method_not_allowed" }, 405);
     }
     if (isRateLimited(ip)) return json({ error: "rate_limited" }, 429);

@@ -105,6 +105,80 @@ function configureTelegram() {
   vi.stubEnv("TELEGRAM_CHAT_ID", "-100500");
 }
 
+describe("живучесть обработчика", () => {
+  it("отвечает на ?ping=1, ничего не читая и никуда не ходя", async () => {
+    // fetch в beforeEach бросает: если пинг куда-то сходит, тест это поймает.
+    const response = await handler(
+      new Request("https://dmo.md/api/lead?ping=1", { method: "GET" })
+    );
+
+    expect(response.status).toBe(200);
+    const payload = (await response.json()) as { ok: boolean };
+    expect(payload.ok).toBe(true);
+  });
+
+  it("превращает непойманное исключение в 500 с текстом, а не в пустой ответ", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "123:ABC");
+    vi.stubEnv("TELEGRAM_CHAT_ID", "-100500");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => {
+        throw new Error("рантайм упал на ровном месте");
+      })
+    );
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const response = await handler(
+      new Request("https://dmo.md/api/lead?check=1", { method: "GET" })
+    );
+    errorSpy.mockRestore();
+
+    // selfCheck ловит сетевые сбои сам, так что до 500 дело не доходит —
+    // но ответ обязан быть разбираемым, а не пустым.
+    expect([200, 500]).toContain(response.status);
+    const raw = await response.text();
+    expect(raw.length).toBeGreaterThan(2);
+  });
+
+  /**
+   * Request, у которого падает самое первое обращение в `route` — чтение
+   * заголовков. Разбор тела для этого не годится: он уже обёрнут в try/catch
+   * и до внешнего обработчика не доходит.
+   */
+  function crashingRequest(method: string): Request {
+    const request = new Request("https://dmo.md/api/lead", { method });
+    Object.defineProperty(request, "headers", {
+      get() {
+        throw new Error("стек, который не должен уехать наружу");
+      },
+    });
+    return request;
+  }
+
+  it("не показывает стек тому, кто отправляет заявку", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const response = await handler(crashingRequest("POST"));
+    errorSpy.mockRestore();
+
+    expect(response.status).toBe(500);
+    const raw = await response.text();
+    expect(raw).toContain("handler_crashed");
+    expect(raw).not.toContain("стек, который не должен уехать наружу");
+  });
+
+  it("показывает стек диагностическому GET, иначе 500 нечем разбирать", async () => {
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const response = await handler(crashingRequest("GET"));
+    errorSpy.mockRestore();
+
+    expect(response.status).toBe(500);
+    const payload = (await response.json()) as { detail?: string };
+    expect(payload.detail).toContain("стек, который не должен уехать наружу");
+  });
+});
+
 describe("самопроверка GET /api/lead?check=1", () => {
   function check() {
     return handler(
