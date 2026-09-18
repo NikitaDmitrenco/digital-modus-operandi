@@ -152,11 +152,6 @@ function CaseView({ item }: { item: CaseStudy }) {
               <strong>{item.proof}</strong>
             </div>
             {item.ndaNote && <p className="case-nda-note">{item.ndaNote}</p>}
-            {item.team.length > 0 && (
-              <p className="case-team">
-                <span className="mono">Делал</span> {item.team.join(", ")}
-              </p>
-            )}
           </section>
         </div>
 

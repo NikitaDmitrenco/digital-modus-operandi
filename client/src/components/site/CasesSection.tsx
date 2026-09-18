@@ -12,7 +12,7 @@ export default function CasesSection() {
     >
       <div className="section-heading reveal">
         <span className="section-index">// 04</span>
-        <span className="mono">РАБОТАЮЩИЕ СИСТЕМЫ / CASES</span>
+        <span className="mono">ЧТО МЫ УЖЕ СДЕЛАЛИ / CASES</span>
         <span className="heading-note">{casesIntro.note}</span>
       </div>
       <div className="cases-header reveal">

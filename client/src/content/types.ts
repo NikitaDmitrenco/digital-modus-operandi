@@ -88,9 +88,8 @@ export type CaseStudy = {
   cover: "case-lime" | "case-violet" | "case-ice" | "case-peach";
   nda: boolean;
   ndaNote?: string;
-  team: string[];
   /** "published" cases are indexable; "draft" ones await client-confirmed facts. */
   status: "published" | "draft";
-  /** Shown on the home page (max 4). */
+  /** Shown on the home page. */
   featured: boolean;
 };

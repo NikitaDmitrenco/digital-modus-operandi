@@ -3,8 +3,8 @@ import type { CaseStudy } from "./types";
 export const casesIntro = {
   titleStart: "Говорят не обещания.",
   titleAccent: "Говорят работающие системы.",
-  text: "Показываем, какую бизнес-задачу решали, что построили и что изменилось после запуска.",
-  note: "3 сильных кейса вместо восьми разношёрстных",
+  text: "Показываем, какую задачу решали, что сделали и что заказчик получил на руки.",
+  note: "Реальные проекты команды",
 };
 
 /**
@@ -42,7 +42,6 @@ export const cases: CaseStudy[] = [
     cover: "case-lime",
     nda: true,
     ndaNote: "Часть архитектуры и бизнес-процессов не раскрывается из-за NDA.",
-    team: [],
     status: "published",
     featured: true,
   },
@@ -74,7 +73,6 @@ export const cases: CaseStudy[] = [
     repoUrl: "https://github.com/xondell/tehnosklad",
     cover: "case-ice",
     nda: false,
-    team: ["Борис", "Никита"],
     status: "published",
     featured: true,
   },
@@ -100,7 +98,6 @@ export const cases: CaseStudy[] = [
     tags: ["EDTECH", "PRODUCT", "FUNDING"],
     cover: "case-violet",
     nda: false,
-    team: [],
     status: "published",
     featured: true,
   },
@@ -127,7 +124,34 @@ export const cases: CaseStudy[] = [
     tags: ["AI", "PRODUCT", "COMMERCIAL"],
     cover: "case-peach",
     nda: false,
-    team: ["Борис"],
+    status: "published",
+    featured: true,
+  },
+
+  {
+    slug: "arhitekton",
+    client: "Архитектон",
+    industry: "Архитектура и проектирование",
+    title: "Сайт архитектурной компании, собранный до последнего экрана",
+    subtitle:
+      "Структура, визуальный язык и все экраны в одной системе — дизайн, который передаётся в разработку целиком, а не одной главной страницей.",
+    problem:
+      "Архитектурную компанию выбирают глазами. Сайт на готовом шаблоне обесценивает работу: проекты выглядят как стоковые картинки, посетитель не считывает уровень компании и уходит сравнивать по цене.",
+    solution:
+      "Спроектировали сайт целиком — от структуры разделов до визуального языка, в котором главные на экране сами проекты, а не текст об услугах. Дизайн собран как система: экраны строятся из одних и тех же блоков, поэтому сайт можно расширять, не переделывая.",
+    functions: [
+      "Структура сайта: какие разделы нужны, в каком порядке и каким шагом посетитель доходит до обращения",
+      "Дизайн всех ключевых экранов, а не одной главной страницы",
+      "Единый визуальный язык: типографика, сетка, цвет и повторяемые блоки вместо разрозненных макетов",
+      "Подача проектов как основного аргумента — работы занимают экран, а не подпись под ним",
+      "Макет доведён до состояния, в котором его отдают в разработку без стадии «остальное додумаем по ходу»",
+    ],
+    result:
+      "У компании на руках не картинка главной страницы, а законченный дизайн сайта: видно, из чего он состоит, как выглядит каждый экран и что именно уходит в разработку.",
+    proof: "Дизайн закончен и передан заказчику",
+    tags: ["WEB DESIGN", "UI SYSTEM", "FIGMA", "DEV-READY"],
+    cover: "case-lime",
+    nda: false,
     status: "published",
     featured: true,
   },
@@ -150,7 +174,6 @@ export const cases: CaseStudy[] = [
     tags: ["CLIMATETECH", "AGRITECH", "INTERNATIONAL"],
     cover: "case-lime",
     nda: false,
-    team: [],
     status: "draft",
     featured: false,
   },
@@ -168,7 +191,6 @@ export const cases: CaseStudy[] = [
     tags: ["R&D", "ENGINEERING", "HARDWARE"],
     cover: "case-ice",
     nda: false,
-    team: [],
     status: "draft",
     featured: false,
   },
@@ -186,7 +208,6 @@ export const cases: CaseStudy[] = [
     tags: ["STARTUP", "PRODUCT", "AWARD"],
     cover: "case-violet",
     nda: false,
-    team: [],
     status: "draft",
     featured: false,
   },
@@ -204,7 +225,6 @@ export const cases: CaseStudy[] = [
     tags: ["WEB", "PRODUCTION"],
     cover: "case-peach",
     nda: false,
-    team: [],
     status: "draft",
     featured: false,
   },

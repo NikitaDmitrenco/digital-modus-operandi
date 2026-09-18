@@ -1922,17 +1922,6 @@ textarea:focus-visible,
   color: var(--lime);
   margin-top: 3px;
 }
-.case-team {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  color: #a3ad9c;
-  font-size: 14px;
-  margin-top: 18px;
-}
-.case-team .mono {
-  color: #748070;
-}
 .case-nda-note {
   color: #6d776a;
   font-size: 12px;

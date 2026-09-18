@@ -61,9 +61,9 @@ describe("published cases carry verifiable content", () => {
 });
 
 describe("featuredCases", () => {
-  it("never exceeds four cards (home page limit is 3-4)", () => {
+  it("stays a curated shortlist rather than the whole portfolio", () => {
     expect(featuredCases.length).toBeGreaterThan(0);
-    expect(featuredCases.length).toBeLessThanOrEqual(4);
+    expect(featuredCases.length).toBeLessThanOrEqual(6);
   });
 
   it("contains only published cases", () => {
