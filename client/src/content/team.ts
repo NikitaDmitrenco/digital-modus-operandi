@@ -14,6 +14,26 @@ export const teamIntro = {
  */
 export const team: TeamMember[] = [
   {
+    id: "D-04",
+    name: "Арсений",
+    role: "FOUNDER / SALES / CLIENT ACQUISITION",
+    bio: "Основатель DMO и первый, с кем вы разговариваете. Отвечает за продажи, поиск и привлечение клиентов, развитие партнёрств.",
+    skills: ["sales", "clients", "partnerships"],
+    portrait: "portrait-d",
+    image: "/team/arseniy.webp",
+    imageAlt: "Арсений — основатель DMO, отвечает за продажи и клиентов",
+  },
+  {
+    id: "D-03",
+    name: "Матвей",
+    role: "PROJECT MANAGEMENT / PROCESS / COMMUNICATION",
+    bio: "10 лет ведёт маркетинговые проекты. Отвечает за то, чтобы договорённости превращались в план работ, сроки и понятный результат, а не в переписку без итога.",
+    skills: ["project", "process", "communication"],
+    portrait: "portrait-c",
+    image: "/team/matvey.webp",
+    imageAlt: "Матвей — проджект-менеджер DMO",
+  },
+  {
     id: "D-01",
     name: "Борис",
     role: "AI / SYSTEMS / AUTOMATION",
@@ -41,25 +61,5 @@ export const team: TeamMember[] = [
     portrait: "portrait-b",
     image: "/team/nikita.webp",
     imageAlt: "Никита — full-stack разработчик DMO",
-  },
-  {
-    id: "D-04",
-    name: "Арсений",
-    role: "FOUNDER / SALES / CLIENT ACQUISITION",
-    bio: "Основатель DMO и первый, с кем вы разговариваете. Отвечает за продажи, поиск и привлечение клиентов, развитие партнёрств.",
-    skills: ["sales", "clients", "partnerships"],
-    portrait: "portrait-d",
-    image: "/team/arseniy.webp",
-    imageAlt: "Арсений — основатель DMO, отвечает за продажи и клиентов",
-  },
-  {
-    id: "D-03",
-    name: "Матвей",
-    role: "PROJECT MANAGEMENT / PROCESS / COMMUNICATION",
-    bio: "10 лет ведёт маркетинговые проекты. Отвечает за то, чтобы договорённости превращались в план работ, сроки и понятный результат, а не в переписку без итога.",
-    skills: ["project", "process", "communication"],
-    portrait: "portrait-c",
-    image: "/team/matvey.webp",
-    imageAlt: "Матвей — проджект-менеджер DMO",
   },
 ];

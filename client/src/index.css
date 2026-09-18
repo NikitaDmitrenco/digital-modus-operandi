@@ -2243,7 +2243,9 @@ textarea:focus-visible,
     gap: 34px 8px;
   }
   .portrait {
-    height: 220px;
+    /* Рамка держится близко к квадрату, как на десктопе: так низ кадра
+       всегда обрезается и запас, добавленный при перекадрировании, не виден. */
+    height: 180px;
   }
   .person-meta {
     display: block;
