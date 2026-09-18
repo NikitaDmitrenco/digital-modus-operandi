@@ -5,7 +5,14 @@ import {
   useState,
   type CSSProperties,
 } from "react";
-import { ArrowUpRight, Check, Command, Loader2, Bot, Send } from "lucide-react";
+import {
+  ArrowUpRight,
+  Command,
+  Loader2,
+  Bot,
+  Send,
+  TriangleAlert,
+} from "lucide-react";
 import { track } from "@/lib/analytics";
 import {
   attributionSource,
@@ -55,6 +62,15 @@ const FIELD_NAMES: Record<keyof Fields, string> = {
   link: "сайт или ссылка",
   honey_ref: "",
 };
+
+/**
+ * Единственное, что говорим при сбое отправки. Предлагать человеку самому
+ * пересылать текст в мессенджер — перекладывать нашу поломку на него: либо
+ * заявка ушла, либо это техническая ошибка и есть запасной адрес.
+ */
+const FAILED_LEAD =
+  "Техническая ошибка — заявка не отправилась. Отправьте задачу на почту";
+const FAILED_MESSAGE = `${FAILED_LEAD} ${brand.email}.`;
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const TELEGRAM_RE =
@@ -188,13 +204,14 @@ export default function Contact() {
 
     if (result.reason === "not_configured" || result.reason === "network") {
       setState("fallback");
+      setAlert(FAILED_MESSAGE);
       return;
     }
 
     const message =
       result.reason === "rate_limited"
-        ? "Слишком много отправок подряд. Подождите минуту или напишите нам напрямую."
-        : "Не получилось отправить. Проверьте поля или напишите нам напрямую.";
+        ? `Слишком много отправок подряд. Подождите минуту или отправьте задачу на ${brand.email}.`
+        : FAILED_MESSAGE;
     setState("idle");
     setErrors({ task: message });
     setAlert(message);
@@ -384,13 +401,11 @@ export default function Contact() {
             </button>
 
             {state === "fallback" && (
-              <p className="form-fallback" role="status">
-                <Check size={14} aria-hidden="true" /> Форма не смогла
-                отправиться автоматически. Текст остался в полях — скопируйте
-                его и отправьте боту{" "}
-                <a href={brand.telegramBotUrl}>{brand.telegramBot}</a> или
-                напишите напрямую{" "}
-                <a href={brand.telegramPersonUrl}>{brand.telegramPerson}</a>.
+              // Роли здесь нет намеренно: об ошибке уже объявляет скрытый
+              // role="alert" выше, иначе она прозвучала бы дважды.
+              <p className="form-fallback">
+                <TriangleAlert size={14} aria-hidden="true" /> {FAILED_LEAD}{" "}
+                <a href={`mailto:${brand.email}`}>{brand.email}</a>
               </p>
             )}
           </form>

@@ -1825,20 +1825,24 @@ textarea:focus-visible,
   color: #6d776a;
   font-size: 12px;
 }
+/* Сообщение о сбое, а не о доставке: тон тот же, что у ошибок полей. */
 .form-fallback {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
-  color: #b6bdb0;
+  color: #ff8f6b;
   font-size: 12px;
   line-height: 1.5;
   margin-top: 20px;
   max-width: 460px;
 }
 .form-fallback a {
-  color: var(--lime);
-  border-bottom: 1px solid rgba(199, 255, 69, 0.4);
+  color: #ff8f6b;
+  border-bottom: 1px solid rgba(255, 143, 107, 0.45);
+}
+.form-fallback a:hover {
+  border-bottom-color: #ff8f6b;
 }
 .button[disabled] {
   opacity: 0.65;
