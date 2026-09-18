@@ -9,6 +9,9 @@
  *   TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID  — sends the lead to a Telegram chat
  *   LEAD_WEBHOOK_URL                       — POSTs the raw lead JSON anywhere
  *
+ * TELEGRAM_CHAT_ID принимает несколько получателей через запятую
+ * («670030360, -1001234567890»): заявка уходит каждому из них независимо.
+ *
  * With none of them configured the endpoint answers 503 and the form falls back
  * to a prefilled email draft, so a lead is never silently swallowed.
  */
@@ -84,41 +87,85 @@ function env(name: string): string {
   return (process.env[name] ?? "").trim();
 }
 
+/**
+ * Получатели заявки в Telegram. Переменная принимает список через запятую,
+ * поэтому владельцев бота может быть несколько: пустые куски и повторы
+ * отбрасываются, порядок сохраняется.
+ */
+function chatIds(): string[] {
+  const parsed = env("TELEGRAM_CHAT_ID")
+    .split(",")
+    .map(value => value.trim())
+    .filter(Boolean);
+  return Array.from(new Set(parsed));
+}
+
+type SendResult = { ok: true } | { ok: false; reason: string };
+
+async function sendToTelegram(
+  botToken: string,
+  chatId: string,
+  message: string
+): Promise<SendResult> {
+  const response = await fetch(
+    `https://api.telegram.org/bot${botToken}/sendMessage`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: chatId,
+        text: message,
+        parse_mode: "HTML",
+        disable_web_page_preview: true,
+      }),
+    }
+  );
+  if (response.ok) return { ok: true };
+  // Телеграм объясняет отказ текстом: «chat not found», «bot was blocked
+  // by the user», «Unauthorized». Без этого 503 неотличим один от другого.
+  const detail = await response.text().catch(() => "");
+  return {
+    ok: false,
+    reason: `telegram ${response.status}: ${detail.slice(0, 300)}`,
+  };
+}
+
 async function deliver(
   message: string,
   lead: Record<string, unknown>
 ): Promise<DeliveryResult> {
   const botToken = env("TELEGRAM_BOT_TOKEN");
-  const chatId = env("TELEGRAM_CHAT_ID");
+  const chats = chatIds();
   const webhook = env("LEAD_WEBHOOK_URL");
   let delivered = false;
   const reasons: string[] = [];
 
-  if (botToken && chatId) {
-    const response = await fetch(
-      `https://api.telegram.org/bot${botToken}/sendMessage`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: message,
-          parse_mode: "HTML",
-          disable_web_page_preview: true,
-        }),
-      }
+  if (botToken && chats.length > 0) {
+    // allSettled, а не all: отказ одного получателя не должен отменять
+    // отправку остальным — заявка нужна хотя бы кому-то из владельцев.
+    const results = await Promise.allSettled(
+      chats.map(chat => sendToTelegram(botToken, chat, message))
     );
-    if (response.ok) {
-      delivered = true;
-    } else {
-      // Телеграм объясняет отказ текстом: «chat not found», «bot was blocked
-      // by the user», «Unauthorized». Без этого 503 неотличим один от другого.
-      const detail = await response.text().catch(() => "");
-      reasons.push(`telegram ${response.status}: ${detail.slice(0, 300)}`);
-    }
-  } else if (botToken || chatId) {
+    results.forEach((result, index) => {
+      // Идентификатор чата остаётся в логе и не уходит в HTTP-ответ: наружу
+      // светить внутренние адреса доставки незачем.
+      const failed = (reason: string) => {
+        console.error(`[lead] чат ${chats[index]} не получил заявку:`, reason);
+        reasons.push(reason);
+      };
+      if (result.status === "rejected") {
+        failed(`telegram: ${String(result.reason)}`);
+        return;
+      }
+      if (result.value.ok) {
+        delivered = true;
+        return;
+      }
+      failed(result.value.reason);
+    });
+  } else if (botToken || chats.length > 0) {
     reasons.push(
-      `telegram: задана только одна переменная из пары (token: ${botToken ? "есть" : "нет"}, chat_id: ${chatId ? "есть" : "нет"})`
+      `telegram: задана только одна переменная из пары (token: ${botToken ? "есть" : "нет"}, chat_id: ${chats.length > 0 ? "есть" : "нет"})`
     );
   }
 
@@ -132,7 +179,7 @@ async function deliver(
     else reasons.push(`webhook ${response.status}`);
   }
 
-  return { delivered, reason: reasons.join("; ") || "no channel matched" };
+  return { delivered, reason: Array.from(new Set(reasons)).join("; ") };
 }
 
 export default async function handler(request: Request): Promise<Response> {
@@ -235,11 +282,20 @@ export default async function handler(request: Request): Promise<Response> {
   try {
     const { delivered, reason } = await deliver(message, lead);
     if (!delivered) {
-      console.error("[lead] НЕ ДОСТАВЛЕНО:", reason, {
+      const detail = reason || "no channel matched";
+      console.error("[lead] НЕ ДОСТАВЛЕНО:", detail, {
         receivedAt: lead.receivedAt,
         contact,
       });
-      return json({ error: "delivery_failed", detail: reason }, 503);
+      return json({ error: "delivery_failed", detail }, 503);
+    }
+    // Часть получателей могла отказать — заявка дошла, но молчать об этом
+    // нельзя: иначе второй владелец бота тихо перестанет получать заявки.
+    if (reason) {
+      console.warn("[lead] доставлено не всем получателям:", reason, {
+        receivedAt: lead.receivedAt,
+        contact,
+      });
     }
     console.log("[lead] доставлено", { receivedAt: lead.receivedAt, contact });
     return json({ ok: true }, 200);

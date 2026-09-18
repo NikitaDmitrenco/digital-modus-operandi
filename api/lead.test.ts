@@ -317,6 +317,124 @@ describe("delivery configuration", () => {
   });
 });
 
+describe("несколько получателей в TELEGRAM_CHAT_ID", () => {
+  /** Все chat_id, которым ушло сообщение, в порядке вызовов. */
+  function telegramChats(fetchMock: ReturnType<typeof okFetch>): string[] {
+    return fetchMock.mock.calls
+      .filter(([url]) => String(url).includes("api.telegram.org"))
+      .map(([, init]) => JSON.parse(String((init as RequestInit).body)))
+      .map((payload: { chat_id: string }) => payload.chat_id);
+  }
+
+  it("отправляет заявку каждому чату из списка через запятую", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "123:ABC");
+    vi.stubEnv("TELEGRAM_CHAT_ID", "670030360,-1001234567890");
+    const fetchMock = okFetch();
+    vi.stubGlobal("fetch", fetchMock);
+
+    const response = await handler(post(validLead));
+
+    expect(response.status).toBe(200);
+    expect(telegramChats(fetchMock)).toEqual(["670030360", "-1001234567890"]);
+  });
+
+  it("терпит пробелы и переводы строк вокруг запятых", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "123:ABC");
+    vi.stubEnv("TELEGRAM_CHAT_ID", " 670030360 ,\n -100500 ,, ");
+    const fetchMock = okFetch();
+    vi.stubGlobal("fetch", fetchMock);
+
+    await handler(post(validLead));
+
+    expect(telegramChats(fetchMock)).toEqual(["670030360", "-100500"]);
+  });
+
+  it("не дублирует отправку, если один и тот же чат указан дважды", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "123:ABC");
+    vi.stubEnv("TELEGRAM_CHAT_ID", "670030360, 670030360");
+    const fetchMock = okFetch();
+    vi.stubGlobal("fetch", fetchMock);
+
+    await handler(post(validLead));
+
+    expect(telegramChats(fetchMock)).toEqual(["670030360"]);
+  });
+
+  it("считает заявку доставленной, если её принял хотя бы один чат", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "123:ABC");
+    vi.stubEnv("TELEGRAM_CHAT_ID", "670030360,-100500");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const { chat_id: chat } = JSON.parse(String(init.body));
+        return chat === "-100500"
+          ? new Response('{"description":"chat not found"}', { status: 400 })
+          : new Response("{}", { status: 200 });
+      })
+    );
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const response = await handler(post(validLead));
+
+    // Молчать про отвалившегося получателя нельзя: иначе второй владелец
+    // бота тихо перестанет получать заявки, и этого никто не заметит.
+    expect(errorSpy).toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
+    warnSpy.mockRestore();
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ ok: true });
+  });
+
+  it("отказ одного чата не отменяет отправку остальным", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "123:ABC");
+    vi.stubEnv("TELEGRAM_CHAT_ID", "-100500,670030360");
+    const seen: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (_url: string, init: RequestInit) => {
+        const { chat_id: chat } = JSON.parse(String(init.body));
+        seen.push(chat);
+        if (chat === "-100500") throw new Error("socket hang up");
+        return new Response("{}", { status: 200 });
+      })
+    );
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    const response = await handler(post(validLead));
+    errorSpy.mockRestore();
+    warnSpy.mockRestore();
+
+    expect(seen).toContain("670030360");
+    expect(response.status).toBe(200);
+  });
+
+  it("отвечает 503, когда не принял ни один из чатов", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "123:ABC");
+    vi.stubEnv("TELEGRAM_CHAT_ID", "670030360,-100500");
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response('{"description":"chat not found"}', { status: 400 })
+      )
+    );
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const response = await handler(post(validLead));
+    errorSpy.mockRestore();
+
+    expect(response.status).toBe(503);
+    const payload = (await response.json()) as { detail?: string };
+    expect(payload.detail).toContain("chat not found");
+    // Идентификаторы чатов наружу не уходят — они только в логах.
+    expect(payload.detail).not.toContain("670030360");
+  });
+});
+
 describe("message building", () => {
   it("escapes HTML from user input so the Telegram markup cannot be injected", async () => {
     configureTelegram();
