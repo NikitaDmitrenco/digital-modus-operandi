@@ -28,6 +28,11 @@
   --moss: #253326;
   --grid: rgba(241, 243, 234, 0.07);
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  /* Space Grotesk и DM Mono не содержат кириллицы: русский текст в них
+     подставлялся системным шрифтом посетителя. Onest и JetBrains Mono
+     покрывают латиницу и кириллицу одной гарнитурой. */
+  --font-display: "Onest", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
 @theme inline {
@@ -98,7 +103,7 @@ button {
   background: #101310;
 }
 .display {
-  font-family: "Space Grotesk", sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(4rem, 8.8vw, 9.5rem);
   line-height: 0.86;
   letter-spacing: -0.085em;
@@ -110,7 +115,7 @@ button {
   color: var(--lime);
 }
 .mono {
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -128,12 +133,12 @@ button {
 }
 .section-index {
   color: var(--lime);
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
 }
 .heading-note {
   margin-left: auto;
   color: #787f73;
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   font-size: 10px;
   text-transform: uppercase;
 }
@@ -141,7 +146,7 @@ button {
   display: flex;
   gap: 14px;
   align-items: center;
-  font-family: "DM Mono", monospace;
+  font-family: var(--font-mono);
   color: #8d9587;
   font-size: 10px;
   letter-spacing: 0.08em;
@@ -229,9 +234,7 @@ button {
   display: flex;
   justify-content: space-between;
   color: #66705e;
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -245,9 +248,7 @@ button {
   justify-content: center;
   gap: 0;
   color: var(--lime);
-  font:
-    500 clamp(4.5rem, 12vw, 9rem) / 0.8 "Space Grotesk",
-    sans-serif;
+  font: 500 clamp(4.5rem, 12vw, 9rem) / 0.8 var(--font-display);
   letter-spacing: -0.14em;
   margin-left: -0.12em;
 }
@@ -270,9 +271,7 @@ button {
 }
 .preloader-caption {
   color: #7c8576;
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.07em;
   text-align: left;
@@ -322,15 +321,11 @@ button {
   height: 27px;
   border: 1px solid currentColor;
   border-radius: 50%;
-  font:
-    600 15px "Space Grotesk",
-    sans-serif;
+  font: 600 15px var(--font-display);
   letter-spacing: -0.08em;
 }
 .brand-name {
-  font:
-    9px/1.05 "DM Mono",
-    monospace;
+  font: 9px/1.05 var(--font-mono);
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -338,9 +333,7 @@ button {
   font-weight: 400;
 }
 .header-meta {
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   margin-left: auto;
@@ -367,9 +360,7 @@ button {
   border: 0;
   background: transparent;
   text-transform: uppercase;
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   letter-spacing: 0.08em;
 }
 .menu-trigger svg {
@@ -421,9 +412,7 @@ button {
   position: relative;
 }
 .menu-intro p {
-  font:
-    2vw/1.02 "Space Grotesk",
-    sans-serif;
+  font: 2vw/1.02 var(--font-display);
   letter-spacing: -0.06em;
   margin: 35px 0;
 }
@@ -449,9 +438,7 @@ button {
   transform: translateX(0);
 }
 .overlay-nav a span:nth-child(2) {
-  font:
-    5.5vw/0.92 "Space Grotesk",
-    sans-serif;
+  font: 5.5vw/0.92 var(--font-display);
   letter-spacing: -0.08em;
 }
 .overlay-nav a .mono {
@@ -477,9 +464,7 @@ button {
   display: flex;
   justify-content: space-between;
   color: #7d857a;
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   border-top: 1px solid var(--border);
@@ -587,9 +572,7 @@ button {
   min-height: 50px;
   padding: 0 20px;
   border: 1px solid transparent;
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   transition:
@@ -672,9 +655,7 @@ button {
   gap: 23px;
   width: max-content;
   animation: marquee 24s linear infinite;
-  font:
-    600 12px "Space Grotesk",
-    sans-serif;
+  font: 600 12px var(--font-display);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -699,9 +680,7 @@ button {
   padding: 104px 0 118px;
 }
 .kicker {
-  font:
-    500 clamp(3rem, 6.2vw, 7.5rem) / 0.92 "Space Grotesk",
-    sans-serif;
+  font: 500 clamp(3rem, 6.2vw, 7.5rem) / 0.92 var(--font-display);
   letter-spacing: -0.08em;
   margin: 0;
   max-width: 760px;
@@ -780,9 +759,7 @@ button {
 }
 .outcome-card strong {
   display: block;
-  font:
-    500 38px "Space Grotesk",
-    sans-serif;
+  font: 500 38px var(--font-display);
   letter-spacing: -0.06em;
   margin: 47px 0 10px;
 }
@@ -849,9 +826,7 @@ button {
   color: #626b5c;
 }
 .process-main h3 {
-  font:
-    500 27px "Space Grotesk",
-    sans-serif;
+  font: 500 27px var(--font-display);
   letter-spacing: -0.05em;
   margin: 0 0 8px;
 }
@@ -939,17 +914,13 @@ button {
   transform: translate(4px, -4px);
 }
 .service-number {
-  font:
-    500 88px/0.8 "Space Grotesk",
-    sans-serif;
+  font: 500 88px/0.8 var(--font-display);
   letter-spacing: -0.11em;
   margin: 86px 0 31px;
   color: #313d2d;
 }
 .service-card h3 {
-  font:
-    500 22px/1 "Space Grotesk",
-    sans-serif;
+  font: 500 22px/1 var(--font-display);
   letter-spacing: -0.05em;
   margin: 0 0 12px;
 }
@@ -971,9 +942,7 @@ button {
   border: 1px solid rgba(241, 243, 234, 0.16);
   color: #859081;
   padding: 6px 8px 5px;
-  font:
-    9px "DM Mono",
-    monospace;
+  font: 9px var(--font-mono);
 }
 .team {
   background: #e7e9df;
@@ -1073,16 +1042,12 @@ button {
   align-items: start;
 }
 .person-meta h3 {
-  font:
-    500 23px "Space Grotesk",
-    sans-serif;
+  font: 500 23px var(--font-display);
   letter-spacing: -0.06em;
   margin: 0;
 }
 .person-meta p {
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   text-transform: uppercase;
   color: #626b60;
   margin: 7px 0 0;
@@ -1104,9 +1069,7 @@ button {
   border-top: 1px solid rgba(20, 23, 18, 0.16);
   padding-top: 12px;
   color: #616b5e;
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
 }
 .cases {
   padding-top: 128px;
@@ -1120,9 +1083,7 @@ button {
   align-items: center;
   gap: 8px;
   color: var(--lime);
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 10px;
@@ -1237,18 +1198,14 @@ button {
   color: #798675;
 }
 .case-details h3 {
-  font:
-    500 clamp(1.5rem, 2.25vw, 2.45rem) / 1 "Space Grotesk",
-    sans-serif;
+  font: 500 clamp(1.5rem, 2.25vw, 2.45rem) / 1 var(--font-display);
   letter-spacing: -0.06em;
   max-width: 600px;
   margin: 14px 0 11px;
 }
 .case-meta {
   color: #798675;
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   text-transform: uppercase;
 }
 .case-result {
@@ -1261,16 +1218,12 @@ button {
 }
 .case-result strong {
   color: var(--lime);
-  font:
-    500 49px/1 "Space Grotesk",
-    sans-serif;
+  font: 500 49px/1 var(--font-display);
   letter-spacing: -0.08em;
 }
 .case-result span {
   color: #798675;
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   text-transform: uppercase;
   margin-top: 7px;
 }
@@ -1314,9 +1267,7 @@ button {
 }
 .difference-item p {
   margin: 0;
-  font:
-    500 18px "Space Grotesk",
-    sans-serif;
+  font: 500 18px var(--font-display);
   letter-spacing: -0.03em;
 }
 .difference-item svg {
@@ -1369,9 +1320,7 @@ button {
   color: #778472;
 }
 .faq-item button strong {
-  font:
-    500 20px "Space Grotesk",
-    sans-serif;
+  font: 500 20px var(--font-display);
   letter-spacing: -0.04em;
 }
 .faq-item button svg {
@@ -1492,9 +1441,7 @@ button {
   gap: 10px;
   width: max-content;
   color: #aeb8a5;
-  font:
-    11px "DM Mono",
-    monospace;
+  font: 11px var(--font-mono);
   border-bottom: 1px solid rgba(199, 255, 69, 0.35);
   padding-bottom: 5px;
 }
@@ -1522,9 +1469,7 @@ button {
   outline: 0;
   background: transparent;
   padding: 15px 0 0;
-  font:
-    500 23px "Space Grotesk",
-    sans-serif;
+  font: 500 23px var(--font-display);
   letter-spacing: -0.04em;
   resize: vertical;
 }
@@ -1542,9 +1487,7 @@ button {
   align-items: center;
   gap: 8px;
   color: var(--lime);
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   text-transform: uppercase;
   margin-top: 20px;
 }
@@ -1571,9 +1514,7 @@ button {
   align-items: center;
   gap: 12px;
   color: var(--lime);
-  font:
-    11px "DM Mono",
-    monospace;
+  font: 11px var(--font-mono);
   text-transform: uppercase;
 }
 .footer-cta svg {
@@ -1588,9 +1529,7 @@ button {
   justify-content: space-between;
   align-items: center;
   color: #738170;
-  font:
-    9px "DM Mono",
-    monospace;
+  font: 9px var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding-top: 17px;
@@ -1616,9 +1555,7 @@ button {
   background: var(--lime);
   color: var(--ink);
   padding: 12px 18px;
-  font:
-    10px "DM Mono",
-    monospace;
+  font: 10px var(--font-mono);
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -1771,9 +1708,7 @@ textarea:focus-visible,
 }
 .case-proof strong {
   color: var(--lime);
-  font:
-    500 17px/1.25 "Space Grotesk",
-    sans-serif;
+  font: 500 17px/1.25 var(--font-display);
   letter-spacing: -0.02em;
 }
 .case-nda {
@@ -1847,9 +1782,7 @@ textarea:focus-visible,
 }
 .contact-title > p.contact-subline {
   color: #cfd6c6;
-  font:
-    500 18px/1.25 "Space Grotesk",
-    sans-serif;
+  font: 500 18px/1.25 var(--font-display);
   letter-spacing: -0.02em;
   margin: 26px 0 0;
   max-width: 430px;
@@ -1891,9 +1824,7 @@ textarea:focus-visible,
   color: var(--lime);
 }
 .form-done h3 {
-  font:
-    500 clamp(1.6rem, 2.4vw, 2.4rem) / 1.05 "Space Grotesk",
-    sans-serif;
+  font: 500 clamp(1.6rem, 2.4vw, 2.4rem) / 1.05 var(--font-display);
   letter-spacing: -0.05em;
   margin: 20px 0 18px;
   max-width: 460px;
@@ -2035,9 +1966,7 @@ textarea:focus-visible,
   color: #788472;
 }
 .extra-cases-list strong {
-  font:
-    500 21px "Space Grotesk",
-    sans-serif;
+  font: 500 21px var(--font-display);
   letter-spacing: -0.04em;
 }
 .extra-cases-list p {
@@ -2473,7 +2402,7 @@ textarea:focus-visible,
     padding-bottom: 64px;
   }
   .hero-title {
-    font-size: clamp(2.3rem, 9.4vw, 3.5rem);
+    font-size: clamp(2.1rem, 8.6vw, 3.3rem);
     line-height: 1;
     margin: 30px 0 34px;
   }

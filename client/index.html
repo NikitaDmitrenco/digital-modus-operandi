@@ -4,10 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0b0c0b" />
-    <title>Разработка B2B-сайтов, личных кабинетов и CRM-систем — Digital Modus Operandi</title>
+    <title>
+      Разработка B2B-сайтов, личных кабинетов и CRM-систем — Digital Modus
+      Operandi
+    </title>
     <meta
       name="description"
-      content="Разрабатываем B2B-сайты и каталоги, личные кабинеты, CRM и внутренние системы. Интегрируем их с CRM, ERP и складом, чтобы заявки, цены и статусы перестали проходить через менеджера вручную." />
+      content="Разрабатываем B2B-сайты и каталоги, личные кабинеты, CRM и внутренние системы. Интегрируем их с CRM, ERP и складом, чтобы заявки, цены и статусы перестали проходить через менеджера вручную."
+    />
     <link rel="canonical" href="https://digital-modus-operandi.vercel.app/" />
 
     <!--
@@ -16,8 +20,8 @@
       HTML -> app.css -> fonts.googleapis.com/css2 -> fonts.gstatic.com/*.woff2.
       Здесь ссылки видит preload-сканер сразу в разметке, соединения прогреты через preconnect,
       а критичные файлы шрифтов запрашиваются параллельно с CSS Google Fonts, а не после него.
-      Начертания ровно те, что реально встречаются в стилях: Space Grotesk 400-600,
-      Manrope 400-700, DM Mono 400 и 500. Диапазоны (wght@400..600) отдают один вариативный
+      Начертания ровно те, что реально встречаются в стилях: Onest 400-600,
+      Manrope 400-700, JetBrains Mono 400 и 500. Диапазоны (wght@400..600) отдают один вариативный
       woff2 вместо дублей @font-face на каждый вес — файл тот же, CSS втрое короче.
     -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -25,12 +29,13 @@
     <link
       rel="preload"
       as="style"
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400..700&family=Space+Grotesk:wght@400..600&display=swap" />
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400..500&family=Manrope:wght@400..700&family=Onest:wght@400..600&display=swap"
+    />
     <!--
       Два начертания, от подмены которых вёрстка скачет сильнее всего, забираем не дожидаясь
-      разбора CSS Google Fonts: Space Grotesk (латиница) — .display / .hero-title / .kicker
-      и монограмма .brand-symbol; Manrope (кириллица) — весь основной текст.
-      URL версионированные (spacegrotesk/v22, manrope/v20): при обновлении семейства в Google Fonts
+      разбора CSS Google Fonts. Обе ссылки ведут на КИРИЛЛИЧЕСКИЙ сабсет, потому что сайт
+      русскоязычный: Onest — .display / .hero-title / .kicker, Manrope — основной текст.
+      URL версионированные (onest/v11, manrope/v20): при обновлении семейства в Google Fonts
       их надо сверить заново, иначе preload скачает файл, который CSS уже не использует.
     -->
     <link
@@ -38,16 +43,19 @@
       as="font"
       type="font/woff2"
       crossorigin
-      href="https://fonts.gstatic.com/s/spacegrotesk/v22/V8mDoQDjQSkFtoMM3T6r8E7mPbF4Cw.woff2" />
+      href="https://fonts.gstatic.com/s/onest/v11/gNMKW3F-SZuj7xmb-HY6EQ.woff2"
+    />
     <link
       rel="preload"
       as="font"
       type="font/woff2"
       crossorigin
-      href="https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggOxSuXd.woff2" />
+      href="https://fonts.gstatic.com/s/manrope/v20/xn7gYHE41ni1AdIRggOxSuXd.woff2"
+    />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400..700&family=Space+Grotesk:wght@400..600&display=swap" />
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400..500&family=Manrope:wght@400..700&family=Onest:wght@400..600&display=swap"
+    />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" sizes="180x180" />
@@ -56,14 +64,27 @@
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Digital Modus Operandi" />
     <meta property="og:locale" content="ru_RU" />
-    <meta property="og:title" content="Разработка B2B-сайтов, личных кабинетов и CRM-систем — Digital Modus Operandi" />
+    <meta
+      property="og:title"
+      content="Разработка B2B-сайтов, личных кабинетов и CRM-систем — Digital Modus Operandi"
+    />
     <meta
       property="og:description"
-      content="B2B-сайты и каталоги, личные кабинеты, CRM и внутренние системы с интеграцией в CRM, ERP и склад." />
-    <meta property="og:url" content="https://digital-modus-operandi.vercel.app/" />
-    <meta property="og:image" content="https://digital-modus-operandi.vercel.app/og-cover.png" />
+      content="B2B-сайты и каталоги, личные кабинеты, CRM и внутренние системы с интеграцией в CRM, ERP и склад."
+    />
+    <meta
+      property="og:url"
+      content="https://digital-modus-operandi.vercel.app/"
+    />
+    <meta
+      property="og:image"
+      content="https://digital-modus-operandi.vercel.app/og-cover.png"
+    />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:image" content="https://digital-modus-operandi.vercel.app/og-cover.png" />
+    <meta
+      name="twitter:image"
+      content="https://digital-modus-operandi.vercel.app/og-cover.png"
+    />
   </head>
   <body>
     <div id="root"></div>
