@@ -1,8 +1,16 @@
 import { useEffect } from "react";
-import { ArrowLeft, ArrowUpRight, Check, ShieldCheck } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowUpRight,
+  Check,
+  ExternalLink,
+  Github,
+  ShieldCheck,
+} from "lucide-react";
 import { Link, useParams } from "wouter";
 import SiteShell from "@/components/site/SiteShell";
 import NotFound from "@/pages/NotFound";
+import { track } from "@/lib/analytics";
 import { captureAttribution } from "@/lib/leads";
 import { SITE_URL, useSeo } from "@/lib/seo";
 import { caseIndex, getCaseBySlug } from "@/content/cases";
@@ -68,6 +76,36 @@ function CaseView({ item }: { item: CaseStudy }) {
               </span>
             ))}
           </div>
+          {(item.liveUrl || item.repoUrl) && (
+            <div className="case-links">
+              {item.liveUrl && (
+                <a
+                  className="button button-primary magnetic"
+                  href={item.liveUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  onClick={() =>
+                    track("case_open", {
+                      section: "case_live",
+                      case_name: item.slug,
+                    })
+                  }
+                >
+                  Открыть сайт <ExternalLink size={16} aria-hidden="true" />
+                </a>
+              )}
+              {item.repoUrl && (
+                <a
+                  className="button button-ghost"
+                  href={item.repoUrl}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  Исходный код <Github size={16} aria-hidden="true" />
+                </a>
+              )}
+            </div>
+          )}
         </header>
 
         <div className="case-page-body">

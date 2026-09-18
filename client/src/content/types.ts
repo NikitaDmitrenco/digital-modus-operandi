@@ -45,6 +45,8 @@ export type TeamMember = {
   /** One sentence about the area of responsibility and the result. */
   bio: string;
   skills: string[];
+  /** Projects this person shipped; `slug` links to the case when it is published. */
+  projects?: { label: string; slug?: string }[];
   portrait: string;
   image?: string;
   imageAlt?: string;
@@ -74,6 +76,10 @@ export type CaseStudy = {
   result: string;
   proof: string;
   tags: string[];
+  /** Public URL of the running product — the strongest proof there is. */
+  liveUrl?: string;
+  /** Public source, when the client allows it. */
+  repoUrl?: string;
   /** Visual tone of the placeholder cover, see `.case-*` in index.css. */
   cover: "case-lime" | "case-violet" | "case-ice" | "case-peach";
   nda: boolean;

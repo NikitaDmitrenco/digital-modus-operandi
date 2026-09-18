@@ -972,6 +972,11 @@ button {
 .person-card {
   border-top: 1px solid rgba(20, 23, 18, 0.25);
   padding-top: 10px;
+  /* Колонка с прижатыми вниз тегами: у карточек разной длины нижние границы
+     иначе встают на разной высоте и сетка выглядит разъехавшейся. */
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 .portrait {
   height: 315px;
@@ -1063,7 +1068,24 @@ button {
   margin: 17px 0;
   max-width: 250px;
 }
+.person-projects {
+  color: #4f5a4b;
+  font-size: 12px;
+  line-height: 1.45;
+  margin: -6px 0 16px;
+}
+.person-projects .mono {
+  color: #626b5f;
+}
+.person-projects a {
+  color: #2f3f19;
+  border-bottom: 1px solid rgba(47, 63, 25, 0.35);
+}
+.person-projects a:hover {
+  color: #546e29;
+}
 .person-tags {
+  margin-top: auto;
   display: flex;
   gap: 10px;
   border-top: 1px solid rgba(20, 23, 18, 0.16);
@@ -1887,6 +1909,12 @@ textarea:focus-visible,
   max-width: 900px;
   margin: 16px 0 0;
 }
+.case-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 26px;
+}
 .case-page-lead {
   color: #a3ad9c;
   font-size: 15px;
@@ -2235,9 +2263,9 @@ textarea:focus-visible,
     font-size: 11px;
   }
   .person-tags {
-    gap: 6px;
-    overflow: hidden;
-    white-space: nowrap;
+    /* Перенос вместо обрезки: длинный тег раньше срезался посреди слова. */
+    gap: 4px 6px;
+    flex-wrap: wrap;
     font-size: 8px;
   }
   .cases {
