@@ -121,11 +121,14 @@ describe("anti-spam", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const response = await handler(
-      post({ ...validLead, company_website: "http://spam.example" })
+      post({ ...validLead, honey_ref: "http://spam.example" })
     );
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ ok: true });
+    await expect(response.json()).resolves.toEqual({
+      ok: true,
+      queued: false,
+    });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -137,7 +140,10 @@ describe("anti-spam", () => {
     const response = await handler(post({ ...validLead, elapsedMs: 1200 }));
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toEqual({ ok: true });
+    await expect(response.json()).resolves.toEqual({
+      ok: true,
+      queued: false,
+    });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
@@ -189,31 +195,77 @@ describe("validation", () => {
 
 describe("delivery configuration", () => {
   it("answers 503 when no channel is configured, so the form can offer email", async () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
     const response = await handler(post(validLead));
 
-    expect(warnSpy).toHaveBeenCalled();
-    warnSpy.mockRestore();
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
     expect(response.status).toBe(503);
     await expect(response.json()).resolves.toEqual({
       error: "delivery_not_configured",
     });
   });
 
-  it("answers 503 when the only channel refuses the lead", async () => {
+  it("answers 503 and reports why when the only channel refuses the lead", async () => {
     configureTelegram();
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     vi.stubGlobal(
       "fetch",
-      vi.fn(async () => new Response("nope", { status: 500 }))
+      vi.fn(
+        async () =>
+          new Response('{"description":"chat not found"}', { status: 400 })
+      )
     );
 
     const response = await handler(post(validLead));
 
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
+
     expect(response.status).toBe(503);
-    await expect(response.json()).resolves.toEqual({
-      error: "delivery_failed",
-    });
+    // Объяснение Telegram обязано доехать: без него 503 «канал не настроен» и
+    // 503 «бот не может писать в этот чат» неразличимы при разборе.
+    const payload = (await response.json()) as {
+      error: string;
+      detail?: string;
+    };
+    expect(payload.error).toBe("delivery_failed");
+    expect(payload.detail).toContain("telegram 400");
+    expect(payload.detail).toContain("chat not found");
+  });
+
+  it("reports the half-configured Telegram pair instead of failing silently", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "token-without-chat-id");
+    vi.stubEnv("TELEGRAM_CHAT_ID", "");
+    const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    const response = await handler(post(validLead));
+    errorSpy.mockRestore();
+
+    expect(response.status).toBe(503);
+    const payload = (await response.json()) as { detail?: string };
+    expect(payload.detail).toContain("только одна переменная");
+  });
+
+  it("tolerates an env value pasted with trailing whitespace", async () => {
+    vi.stubEnv("TELEGRAM_BOT_TOKEN", "  secret-token\n");
+    vi.stubEnv("TELEGRAM_CHAT_ID", " 670030360 ");
+    const calls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (url: string) => {
+        calls.push(String(url));
+        return new Response("{}", { status: 200 });
+      })
+    );
+
+    const response = await handler(post(validLead));
+
+    expect(response.status).toBe(200);
+    expect(calls[0]).toBe(
+      "https://api.telegram.org/botsecret-token/sendMessage"
+    );
   });
 
   it("answers 503 when the delivery call throws", async () => {

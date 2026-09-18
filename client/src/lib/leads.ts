@@ -98,8 +98,9 @@ export type LeadPayload = {
   contact: string;
   task: string;
   link?: string;
-  /** Honeypot — must stay empty. */
-  company_website?: string;
+  /** Honeypot — must stay empty. Нейтральное имя: под company_website
+   *  срабатывало автозаполнение браузера. */
+  honey_ref?: string;
   /** Milliseconds between form render and submit, used as a bot signal. */
   elapsedMs: number;
   attribution: Attribution;

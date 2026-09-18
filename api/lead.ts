@@ -22,7 +22,7 @@ type LeadBody = {
   contact?: unknown;
   task?: unknown;
   link?: unknown;
-  company_website?: unknown;
+  honey_ref?: unknown;
   elapsedMs?: unknown;
   attribution?: Attribution;
   page?: unknown;
@@ -30,6 +30,8 @@ type LeadBody = {
 
 /** Best-effort, per-instance rate limiting. Serverless instances are not shared,
  *  so this stops floods from one client, not a distributed attack. */
+/** Ниже этого порога заполнение считается машинным. */
+const MIN_FILL_MS = 2000;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const RATE_LIMIT_MAX = 3;
 const hits = new Map<string, number[]>();
@@ -71,14 +73,26 @@ function escapeHtml(value: string): string {
     .replace(/>/g, "&gt;");
 }
 
+type DeliveryResult = { delivered: boolean; reason: string };
+
+/**
+ * Значения переменных окружения обрезаются: токен, скопированный из чата или
+ * BotFather, часто приезжает с хвостовым пробелом или переводом строки, и
+ * тогда Telegram отвечает 404 на несуществующий метод.
+ */
+function env(name: string): string {
+  return (process.env[name] ?? "").trim();
+}
+
 async function deliver(
   message: string,
   lead: Record<string, unknown>
-): Promise<boolean> {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
-  const chatId = process.env.TELEGRAM_CHAT_ID;
-  const webhook = process.env.LEAD_WEBHOOK_URL;
+): Promise<DeliveryResult> {
+  const botToken = env("TELEGRAM_BOT_TOKEN");
+  const chatId = env("TELEGRAM_CHAT_ID");
+  const webhook = env("LEAD_WEBHOOK_URL");
   let delivered = false;
+  const reasons: string[] = [];
 
   if (botToken && chatId) {
     const response = await fetch(
@@ -94,7 +108,18 @@ async function deliver(
         }),
       }
     );
-    delivered = response.ok;
+    if (response.ok) {
+      delivered = true;
+    } else {
+      // Телеграм объясняет отказ текстом: «chat not found», «bot was blocked
+      // by the user», «Unauthorized». Без этого 503 неотличим один от другого.
+      const detail = await response.text().catch(() => "");
+      reasons.push(`telegram ${response.status}: ${detail.slice(0, 300)}`);
+    }
+  } else if (botToken || chatId) {
+    reasons.push(
+      `telegram: задана только одна переменная из пары (token: ${botToken ? "есть" : "нет"}, chat_id: ${chatId ? "есть" : "нет"})`
+    );
   }
 
   if (webhook) {
@@ -103,10 +128,11 @@ async function deliver(
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(lead),
     });
-    delivered = delivered || response.ok;
+    if (response.ok) delivered = true;
+    else reasons.push(`webhook ${response.status}`);
   }
 
-  return delivered;
+  return { delivered, reason: reasons.join("; ") || "no channel matched" };
 }
 
 export default async function handler(request: Request): Promise<Response> {
@@ -130,16 +156,29 @@ export default async function handler(request: Request): Promise<Response> {
     return json({ error: "invalid_json" }, 400);
   }
 
-  // Honeypot: a real visitor never sees this field.
-  if (text(body.company_website, 200)) {
-    // Answer 200 so the bot believes it succeeded and does not retry.
-    return json({ ok: true }, 200);
+  // Ниже два отсева, которые отвечают 200 и НИЧЕГО не отправляют: бот должен
+  // считать, что всё получилось, и не повторять попытку. Обратная сторона — при
+  // ложном срабатывании живой человек тоже увидит «Заявка принята», а заявка
+  // пропадёт. Поэтому оба пишут в лог и помечают ответ `queued: false`:
+  // в Network-вкладке и в логах Vercel такой случай видно, боту это безразлично.
+  if (text(body.honey_ref, 200)) {
+    console.warn("[lead] ОТСЕЯНО как спам: заполнено скрытое поле", {
+      contact: text(body.contact, 150),
+    });
+    return json({ ok: true, queued: false }, 200);
   }
 
-  // A human needs more than two seconds to describe their process.
   const elapsedMs = typeof body.elapsedMs === "number" ? body.elapsedMs : 0;
-  if (elapsedMs > 0 && elapsedMs < 2000) {
-    return json({ ok: true }, 200);
+  if (elapsedMs > 0 && elapsedMs < MIN_FILL_MS) {
+    console.warn(
+      "[lead] ОТСЕЯНО как спам: форма заполнена за",
+      elapsedMs,
+      "мс",
+      {
+        contact: text(body.contact, 150),
+      }
+    );
+    return json({ ok: true, queued: false }, 200);
   }
 
   const name = text(body.name, 150);
@@ -184,20 +223,28 @@ export default async function handler(request: Request): Promise<Response> {
     receivedAt: new Date().toISOString(),
   };
 
-  if (!process.env.TELEGRAM_BOT_TOKEN && !process.env.LEAD_WEBHOOK_URL) {
-    console.warn(
-      "[lead] no delivery channel configured, lead not stored",
-      lead.receivedAt
+  if (!env("TELEGRAM_BOT_TOKEN") && !env("LEAD_WEBHOOK_URL")) {
+    console.error(
+      "[lead] НЕ ДОСТАВЛЕНО: канал не настроен. Задайте TELEGRAM_BOT_TOKEN и " +
+        "TELEGRAM_CHAT_ID в переменных окружения Vercel и передеплойте.",
+      { receivedAt: lead.receivedAt, contact }
     );
     return json({ error: "delivery_not_configured" }, 503);
   }
 
   try {
-    const delivered = await deliver(message, lead);
-    if (!delivered) return json({ error: "delivery_failed" }, 503);
+    const { delivered, reason } = await deliver(message, lead);
+    if (!delivered) {
+      console.error("[lead] НЕ ДОСТАВЛЕНО:", reason, {
+        receivedAt: lead.receivedAt,
+        contact,
+      });
+      return json({ error: "delivery_failed", detail: reason }, 503);
+    }
+    console.log("[lead] доставлено", { receivedAt: lead.receivedAt, contact });
     return json({ ok: true }, 200);
   } catch (error) {
-    console.error("[lead] delivery error", error);
+    console.error("[lead] НЕ ДОСТАВЛЕНО: исключение при отправке", error);
     return json({ error: "delivery_failed" }, 503);
   }
 }

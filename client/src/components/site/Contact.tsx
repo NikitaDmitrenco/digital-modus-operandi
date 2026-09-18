@@ -28,7 +28,7 @@ type Fields = {
   contact: string;
   task: string;
   link: string;
-  company_website: string;
+  honey_ref: string;
 };
 
 type Errors = Partial<Record<keyof Fields, string>>;
@@ -38,7 +38,7 @@ const EMPTY: Fields = {
   contact: "",
   task: "",
   link: "",
-  company_website: "",
+  honey_ref: "",
 };
 
 /** Off-screen but still announced — the stylesheet needs no new class. */
@@ -61,7 +61,7 @@ const FIELD_NAMES: Record<keyof Fields, string> = {
   contact: "куда ответить",
   task: "что происходит",
   link: "сайт или ссылка",
-  company_website: "",
+  honey_ref: "",
 };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -137,7 +137,7 @@ export default function Contact() {
       contact: values.contact.trim(),
       task: values.task.trim(),
       link: values.link.trim() || undefined,
-      company_website: values.company_website,
+      honey_ref: values.honey_ref,
       elapsedMs: Date.now() - mountedAt.current,
       attribution: getAttribution(),
       page: typeof window === "undefined" ? "" : window.location.href,
@@ -356,14 +356,12 @@ export default function Contact() {
 
             {/* Honeypot: invisible to people, irresistible to bots. */}
             <div className="honeypot" aria-hidden="true">
-              <label htmlFor="field-company-website">
-                Не заполняйте это поле
-              </label>
+              <label htmlFor="field-honey-ref">Не заполняйте это поле</label>
               <input
-                id="field-company-website"
-                name="company_website"
-                value={values.company_website}
-                onChange={setField("company_website")}
+                id="field-honey-ref"
+                name="honey_ref"
+                value={values.honey_ref}
+                onChange={setField("honey_ref")}
                 tabIndex={-1}
                 autoComplete="off"
               />
