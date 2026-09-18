@@ -5,7 +5,7 @@ import {
   type CSSProperties,
   type ReactNode,
 } from "react";
-import { ArrowUpRight, Bot, Menu, Send, X } from "lucide-react";
+import { ArrowUpRight, Mail, Menu, Send, X } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useSiteChrome } from "@/hooks/useSiteChrome";
 import { track } from "@/lib/analytics";
@@ -241,13 +241,13 @@ export default function SiteShell({
               <Send size={16} />
             </a>
             <a
-              href={brand.telegramBotUrl}
-              aria-label={`Оставить заявку в боте ${brand.telegramBot}`}
+              href={`mailto:${brand.email}`}
+              aria-label={`Написать на почту ${brand.email}`}
               onClick={() =>
-                track("telegram_click", { section: "footer", source: "bot" })
+                track("email_click", { section: "footer", source: "email" })
               }
             >
-              <Bot size={16} />
+              <Mail size={16} />
             </a>
           </div>
         </div>

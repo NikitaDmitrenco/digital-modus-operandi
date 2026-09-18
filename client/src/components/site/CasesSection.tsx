@@ -46,6 +46,11 @@ export default function CasesSection() {
                 <div className="case-arrow" aria-hidden="true">
                   <ArrowUpRight size={22} strokeWidth={1.2} />
                 </div>
+                <div className="case-hover-cta" aria-hidden="true">
+                  <span className="mono">ПЕРЕЙТИ К КЕЙСУ</span>
+                  <strong>Смотреть проект</strong>
+                  <ArrowUpRight size={34} strokeWidth={1.2} />
+                </div>
               </div>
               <div className="case-details">
                 <div className="case-copy">

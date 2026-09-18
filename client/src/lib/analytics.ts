@@ -21,6 +21,7 @@ export type AnalyticsEvent =
   | "contact_start"
   | "contact_submit"
   | "telegram_click"
+  | "email_click"
   | "scroll_depth";
 
 export type AnalyticsParams = {

@@ -9,7 +9,7 @@ import {
   ArrowUpRight,
   Command,
   Loader2,
-  Bot,
+  Mail,
   Send,
   TriangleAlert,
 } from "lucide-react";
@@ -259,13 +259,13 @@ export default function Contact() {
               {brand.telegramPerson}
             </a>
             <a
-              href={brand.telegramBotUrl}
+              href={`mailto:${brand.email}`}
               onClick={() =>
-                track("telegram_click", { section: "contact", source: "bot" })
+                track("email_click", { section: "contact", source: "email" })
               }
             >
-              <Bot size={17} aria-hidden="true" /> Оставить заявку —{" "}
-              {brand.telegramBot}
+              <Mail size={17} aria-hidden="true" /> Написать на почту —{" "}
+              {brand.email}
             </a>
           </div>
         </div>

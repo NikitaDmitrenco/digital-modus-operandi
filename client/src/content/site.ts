@@ -8,9 +8,6 @@ export const brand = {
   /** Живой человек: сюда пишут, когда нужен разговор, а не форма. */
   telegramPerson: "@Arseniy_Karpenko",
   telegramPersonUrl: "https://t.me/Arseniy_Karpenko",
-  /** Бот для заявок: запасной канал, если форма не отправилась. */
-  telegramBot: "@dmorequestsbot",
-  telegramBotUrl: "https://t.me/dmorequestsbot",
   /**
    * Запасной адрес на случай технического сбоя формы. Почтовый ящик ещё не
    * заведён — адрес поставлен клиентом как заглушка до его настройки.

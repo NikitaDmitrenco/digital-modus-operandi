@@ -84,6 +84,7 @@ function telegramPayload(fetchMock: ReturnType<typeof okFetch>) {
 beforeEach(async () => {
   // Nothing is configured unless a test says so.
   vi.stubEnv("TELEGRAM_BOT_TOKEN", undefined as unknown as string);
+  vi.stubEnv("TELEGRAM_BOT_USERNAME", undefined as unknown as string);
   vi.stubEnv("TELEGRAM_CHAT_ID", undefined as unknown as string);
   vi.stubEnv("LEAD_WEBHOOK_URL", undefined as unknown as string);
   vi.stubGlobal(
@@ -211,6 +212,27 @@ describe("самопроверка GET /api/lead?check=1", () => {
     expect(payload.tokenError).toContain("Unauthorized");
     expect(String(payload.verdict)).toContain("BotFather");
     // getChat вызывать незачем: без рабочего токена ответ был бы тем же.
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("ловит username от другого Telegram-бота", async () => {
+    configureTelegram();
+    vi.stubEnv("TELEGRAM_BOT_USERNAME", "@expected_bot");
+    const fetchMock = vi.fn(
+      async () =>
+        new Response('{"ok":true,"result":{"username":"another_bot"}}', {
+          status: 200,
+        })
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const payload = (await (await check()).json()) as {
+      usernameMatches?: boolean;
+      verdict?: string;
+    };
+
+    expect(payload.usernameMatches).toBe(false);
+    expect(payload.verdict).toContain("TELEGRAM_BOT_USERNAME");
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 

@@ -1142,6 +1142,46 @@ button {
   top: 15px;
   color: var(--lime);
 }
+.case-hover-cta {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 22px 24px 24px;
+  background: var(--lime);
+  color: #11150f;
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.28s var(--ease-out),
+    transform 0.32s var(--ease-out);
+  pointer-events: none;
+}
+.case-hover-cta .mono {
+  color: rgba(17, 21, 15, 0.68);
+  letter-spacing: 0.06em;
+}
+.case-hover-cta strong {
+  max-width: 720px;
+  font: 500 clamp(2.3rem, 5.8vw, 5.8rem) / 0.88 var(--font-display);
+  letter-spacing: -0.07em;
+}
+.case-hover-cta svg {
+  align-self: flex-end;
+}
+.case-card:hover .case-hover-cta,
+.case-card:focus-within .case-hover-cta {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (hover: none) {
+  .case-hover-cta {
+    display: none;
+  }
+}
+
 .case-violet .case-orb {
   background:
     radial-gradient(

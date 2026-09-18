@@ -194,9 +194,13 @@ async function deliver(
  */
 async function selfCheck(): Promise<Record<string, unknown>> {
   const botToken = env("TELEGRAM_BOT_TOKEN");
+  const expectedBotUsername = env("TELEGRAM_BOT_USERNAME")
+    .replace(/^@+/, "")
+    .toLowerCase();
   const chats = chatIds();
   const report: Record<string, unknown> = {
     telegramToken: botToken ? "задан" : "НЕ ЗАДАН",
+    telegramUsername: expectedBotUsername ? "задан" : "не задан",
     chatsConfigured: chats.length,
     webhook: env("LEAD_WEBHOOK_URL") ? "задан" : "не задан",
   };
@@ -212,6 +216,20 @@ async function selfCheck(): Promise<Record<string, unknown>> {
   report.tokenValid = me.ok;
   if (me.ok) report.bot = me.username ? `@${me.username}` : "";
   else report.tokenError = me.error;
+
+  if (me.ok && expectedBotUsername) {
+    const actualBotUsername = (me.username ?? "")
+      .replace(/^@+/, "")
+      .toLowerCase();
+    const usernameMatches = actualBotUsername === expectedBotUsername;
+    report.usernameMatches = usernameMatches;
+    if (!usernameMatches) {
+      report.verdict =
+        "TELEGRAM_BOT_USERNAME не совпадает с ботом, которому принадлежит " +
+        "TELEGRAM_BOT_TOKEN. Проверьте обе переменные в Vercel и передеплойте.";
+      return report;
+    }
+  }
 
   if (!me.ok) {
     report.verdict =
@@ -406,7 +424,10 @@ async function route(request: Request): Promise<Response> {
     receivedAt: new Date().toISOString(),
   };
 
-  if (!env("TELEGRAM_BOT_TOKEN") && !env("LEAD_WEBHOOK_URL")) {
+  const telegramConfigured = Boolean(
+    env("TELEGRAM_BOT_TOKEN") || chatIds().length > 0
+  );
+  if (!telegramConfigured && !env("LEAD_WEBHOOK_URL")) {
     console.error(
       "[lead] НЕ ДОСТАВЛЕНО: канал не настроен. Задайте TELEGRAM_BOT_TOKEN и " +
         "TELEGRAM_CHAT_ID в переменных окружения Vercel и передеплойте.",
