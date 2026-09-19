@@ -162,7 +162,7 @@ button {
     opacity 0.8s var(--ease-out),
     transform 0.8s var(--ease-out);
 }
-.reveal.is-visible {
+.reveal[data-revealed] {
   opacity: 1;
   transform: translateY(0);
 }

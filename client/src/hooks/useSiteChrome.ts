@@ -17,10 +17,18 @@ export function useSiteChrome(
       "(prefers-reduced-motion: reduce)"
     ).matches;
 
+    // Отметка ставится атрибутом, а не классом, и это принципиально: `className`
+    // на элементе с `reveal` принадлежит React. Стоит компоненту перерисоваться
+    // (например, аккордеон FAQ дописывает `is-active`), React перезапишет
+    // className целиком — и класс, добавленный здесь, исчезнет вместе с
+    // видимостью блока. Атрибут, которого нет в JSX, React не трогает.
     const revealObserver = new IntersectionObserver(
       entries => {
         entries.forEach(entry => {
-          if (entry.isIntersecting) entry.target.classList.add("is-visible");
+          if (!entry.isIntersecting) return;
+          entry.target.setAttribute("data-revealed", "");
+          // Показали — наблюдать больше не за чем.
+          revealObserver.unobserve(entry.target);
         });
       },
       { threshold: 0.12 }

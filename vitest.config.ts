@@ -8,6 +8,9 @@ import { defineConfig } from "vitest/config";
  * alias, mirrored here and in `tsconfig.json`.
  */
 export default defineConfig({
+  // tsconfig держит `jsx: "preserve"` ради Vite, поэтому esbuild в тестах
+  // компилировал бы JSX в вызовы React.createElement с несуществующим React.
+  esbuild: { jsx: "automatic" },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -19,7 +22,7 @@ export default defineConfig({
     // `// @vitest-environment jsdom` on the first line.
     environment: "node",
     include: [
-      "client/src/**/*.test.ts",
+      "client/src/**/*.test.{ts,tsx}",
       "api/**/*.test.ts",
       "tests/**/*.test.ts",
     ],
