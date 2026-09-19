@@ -33,12 +33,36 @@ export function useSiteChrome(
       },
       { threshold: 0.12 }
     );
-    document
-      .querySelectorAll(".reveal")
-      .forEach(element => revealObserver.observe(element));
+    const observeReveals = (root: ParentNode) => {
+      if (root instanceof Element && root.classList.contains("reveal")) {
+        revealObserver.observe(root);
+      }
+      root
+        .querySelectorAll(".reveal")
+        .forEach(el => revealObserver.observe(el));
+    };
+    observeReveals(document);
+
+    // Блоки, появившиеся после монтирования — например, «заявка принята»
+    // вместо формы, — наблюдателю иначе неизвестны: они так и остались бы
+    // прозрачными, то есть интерфейс исчезал бы на глазах. Поэтому следим и
+    // за новыми узлами, а не только за теми, что были при загрузке.
+    const domObserver = new MutationObserver(records => {
+      records.forEach(record => {
+        record.addedNodes.forEach(node => {
+          if (node instanceof Element) observeReveals(node);
+        });
+      });
+    });
+    domObserver.observe(document.body, { childList: true, subtree: true });
+
+    const stopObserving = () => {
+      revealObserver.disconnect();
+      domObserver.disconnect();
+    };
 
     if (reducedMotion) {
-      return () => revealObserver.disconnect();
+      return stopObserving;
     }
 
     const onPointerMove = (event: PointerEvent) => {
@@ -104,7 +128,7 @@ export function useSiteChrome(
     window.addEventListener("pointerout", onPointerOut);
 
     return () => {
-      revealObserver.disconnect();
+      stopObserving();
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerover", onPointerOver);
       window.removeEventListener("pointerout", onPointerOut);

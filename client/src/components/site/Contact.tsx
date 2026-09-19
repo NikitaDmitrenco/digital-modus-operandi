@@ -271,8 +271,11 @@ export default function Contact() {
         </div>
 
         {state === "sent" ? (
+          // Без `reveal`: блок появляется на месте формы, которая уже на
+          // экране. Со скролл-анимацией он стартовал бы прозрачным, а
+          // наблюдатель его уже не ждёт — интерфейс просто исчезал бы.
           <div
-            className="contact-form reveal delay-1 form-done"
+            className="contact-form form-done"
             role="status"
             ref={doneRef}
             tabIndex={-1}
