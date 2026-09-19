@@ -19,7 +19,7 @@ let ipCounter = 0;
 async function loadHandler(): Promise<Handler> {
   vi.resetModules();
   const mod = await import("../api/lead");
-  return mod.default as Handler;
+  return mod.webHandler as Handler;
 }
 
 function nextIp(): string {

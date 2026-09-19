@@ -1,5 +1,5 @@
 /**
- * Lead intake endpoint (Vercel Function, Web handler signature).
+ * Lead intake endpoint (Vercel Function).
  *
  * The site is a static SPA, so this function is the only server-side piece:
  * it validates the submission, applies anti-spam checks that a client cannot be
@@ -16,10 +16,7 @@
  * to a prefilled email draft, so a lead is never silently swallowed.
  */
 
-// `export const config = { runtime: "nodejs" }` убран намеренно: для файла в
-// `api/` Node-рантайм и так стоит по умолчанию, а значение строкой — лишний
-// повод для сборщика споткнуться. Один из подозреваемых в 500, и отказ от
-// него ничего не стоит.
+import type { IncomingMessage, ServerResponse } from "node:http";
 
 type Attribution = Record<string, string | undefined>;
 
@@ -307,7 +304,7 @@ async function askTelegram(
  * ошибки возвращается вызывающему — но лишь для диагностических GET-запросов.
  * Ответ на отправку заявки остаётся безликим: посетителю незачем видеть стек.
  */
-export default async function handler(request: Request): Promise<Response> {
+export async function webHandler(request: Request): Promise<Response> {
   const diagnostic = request.method === "GET";
   try {
     return await route(request);
@@ -462,5 +459,67 @@ async function route(request: Request): Promise<Response> {
   } catch (error) {
     console.error("[lead] НЕ ДОСТАВЛЕНО: исключение при отправке", error);
     return json({ error: "delivery_failed" }, 503);
+  }
+}
+
+/**
+ * Адаптер под то, как функцию зовёт Vercel.
+ *
+ * Платформа вызывает обработчик по классической сигнатуре Node — `(req, res)`.
+ * Экспортировать наружу функцию в веб-стиле (`Request` → `Response`) нельзя:
+ * её позовут как легаси, возвращённый `Response` уйдёт в пустоту, `res.end()`
+ * никто не вызовет, и запрос будет висеть до таймаута платформы. Именно это и
+ * происходило: кнопка «Отправляем» не отпускалась, а диагностические адреса
+ * не открывались вовсе.
+ *
+ * Логика при этом остаётся веб-стилем (`webHandler`): её можно звать в тестах
+ * обычным `Request`, не поднимая сервер.
+ */
+async function readBody(req: IncomingMessage): Promise<string | undefined> {
+  if (req.method === "GET" || req.method === "HEAD") return undefined;
+  // Рантайм Vercel может разобрать тело заранее — тогда поток уже пуст, и
+  // читать его бесполезно: заявка превратилась бы в «невалидный JSON».
+  const parsed = (req as IncomingMessage & { body?: unknown }).body;
+  if (typeof parsed === "string") return parsed || undefined;
+  if (parsed && typeof parsed === "object") return JSON.stringify(parsed);
+  const chunks: Buffer[] = [];
+  for await (const chunk of req) chunks.push(chunk as Buffer);
+  const raw = Buffer.concat(chunks).toString("utf8");
+  return raw.length > 0 ? raw : undefined;
+}
+
+function toWebRequest(req: IncomingMessage, body?: string): Request {
+  const host = req.headers.host || "localhost";
+  const headers = new Headers();
+  Object.entries(req.headers).forEach(([name, value]) => {
+    if (typeof value === "string") headers.set(name, value);
+    else if (Array.isArray(value))
+      value.forEach(item => headers.append(name, item));
+  });
+  return new Request(`https://${host}${req.url || "/api/lead"}`, {
+    method: req.method || "GET",
+    headers,
+    body,
+  });
+}
+
+export default async function handler(
+  req: IncomingMessage,
+  res: ServerResponse
+): Promise<void> {
+  try {
+    const response = await webHandler(toWebRequest(req, await readBody(req)));
+    res.statusCode = response.status;
+    response.headers.forEach((value, name) => res.setHeader(name, value));
+    res.end(await response.text());
+  } catch (error) {
+    // Ответить обязаны в любом случае: молчание здесь — это снова зависший
+    // запрос, худший из возможных исходов для отправляющего заявку.
+    console.error("[lead] адаптер не смог ответить:", error);
+    if (!res.headersSent) {
+      res.statusCode = 500;
+      res.setHeader("Content-Type", "application/json");
+    }
+    res.end(JSON.stringify({ error: "adapter_failed" }));
   }
 }
