@@ -16,7 +16,10 @@
  * to a prefilled email draft, so a lead is never silently swallowed.
  */
 
-export const config = { runtime: "nodejs" };
+// `export const config = { runtime: "nodejs" }` убран намеренно: для файла в
+// `api/` Node-рантайм и так стоит по умолчанию, а значение строкой — лишний
+// повод для сборщика споткнуться. Один из подозреваемых в 500, и отказ от
+// него ничего не стоит.
 
 type Attribution = Record<string, string | undefined>;
 
